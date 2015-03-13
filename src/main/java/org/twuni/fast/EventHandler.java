@@ -34,9 +34,41 @@ public interface EventHandler extends FAST {
 	public void onCredentialReceived( byte [] credential );
 
 	/**
+	 * This method is called whenever a remote endpoint has assigned an
+	 * {@code identity} to the local endpoint.
+	 * 
+	 * @param identity
+	 *            the identity assigned to the local endpoint by the remote
+	 *            endpoint.
+	 */
+	public void onIdentityReceived( byte [] identity );
+
+	/**
+	 * This method is called whenever a session has been created.
+	 * 
+	 * @param sessionID
+	 *            the identifier assigned by the remote endpoint to this
+	 *            session.
+	 */
+	public void onSessionCreated( byte [] sessionID );
+
+	/**
+	 * This method is called just after a session has connected.
+	 */
+	public void onConnected();
+
+	/**
 	 * This method is called just after a session has disconnected.
 	 */
 	public void onDisconnected();
+
+	/**
+	 * This method is called if anything goes wrong within a session.
+	 * 
+	 * @param exception
+	 *            what went wrong.
+	 */
+	public void onException( Throwable exception );
 
 	/**
 	 * This method is called whenever a remote endpoint has requested immediate
@@ -52,7 +84,7 @@ public interface EventHandler extends FAST {
 	 *            the local address to which the remote endpoint has indicated a
 	 *            desire to connect.
 	 */
-	public void onGreetingReceived( byte [] address );
+	public void onAttachRequested( byte [] address );
 
 	/**
 	 * This method is called just after a packet is received.

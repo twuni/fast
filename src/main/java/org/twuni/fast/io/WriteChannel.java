@@ -3,6 +3,7 @@ package org.twuni.fast.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.twuni.fast.EventHandler;
 import org.twuni.fast.FAST;
 import org.twuni.fast.model.Command;
 import org.twuni.fast.model.Packet;
@@ -15,15 +16,31 @@ import org.twuni.fast.util.IOUtils;
 public class WriteChannel implements FAST {
 
 	private final OutputStream output;
+	private EventHandler eventHandler;
 
 	/**
-	 * Initializes this reader to write to the given {@code input} stream.
+	 * Initializes this reader to write to the given {@code output} stream,
+	 * without assigning an event handler.
 	 * 
 	 * @param output
 	 *            the stream to which data will be written.
 	 */
 	public WriteChannel( OutputStream output ) {
+		this( output, null );
+	}
+
+	/**
+	 * Initializes this reader to write to the given {@code output} stream,
+	 * dispatching events to the given {@code eventHandler}.
+	 * 
+	 * @param output
+	 *            the stream to which data will be written.
+	 * @param eventHandler
+	 *            the recipient of any events which occur.
+	 */
+	public WriteChannel( OutputStream output, EventHandler eventHandler ) {
 		this.output = output;
+		this.eventHandler = eventHandler;
 	}
 
 	/**
@@ -34,10 +51,10 @@ public class WriteChannel implements FAST {
 	 *            the address to be assigned to the remote endpoint.
 	 * @throws IOException
 	 *             if a communications error occurs.
-	 * @see #acceptAuthentication(byte[])
+	 * @see #identify(byte[])
 	 */
-	public void acceptAuthentication( String address ) throws IOException {
-		acceptAuthentication( address.getBytes() );
+	public void identify( String address ) throws IOException {
+		identify( address.getBytes() );
 	}
 
 	/**
@@ -49,7 +66,8 @@ public class WriteChannel implements FAST {
 	 * @throws IOException
 	 *             if a communications error occurs.
 	 */
-	public void acceptAuthentication( byte [] address ) throws IOException {
+	public void identify( byte [] address ) throws IOException {
+		output.write( Command.IDENTIFY );
 		IOUtils.writeSmallBuffer( output, address );
 		output.flush();
 	}
@@ -62,10 +80,10 @@ public class WriteChannel implements FAST {
 	 *            the session ID to be assigned to the remote endpoint.
 	 * @throws IOException
 	 *             if a communications error occurs.
-	 * @see #acceptGreeting(byte[])
+	 * @see #session(byte[])
 	 */
-	public void acceptGreeting( String sessionID ) throws IOException {
-		acceptGreeting( sessionID.getBytes() );
+	public void session( String sessionID ) throws IOException {
+		session( sessionID.getBytes() );
 	}
 
 	/**
@@ -77,7 +95,8 @@ public class WriteChannel implements FAST {
 	 * @throws IOException
 	 *             if a communications error occurs.
 	 */
-	public void acceptGreeting( byte [] sessionID ) throws IOException {
+	public void session( byte [] sessionID ) throws IOException {
+		output.write( Command.SESSION );
 		IOUtils.writeSmallBuffer( output, sessionID );
 		output.flush();
 	}
@@ -98,11 +117,38 @@ public class WriteChannel implements FAST {
 	}
 
 	/**
-	 * Explicitly disconnects from the remote endpoint.
+	 * Authenticates to the remote endpoint with the given {@code credential}.
+	 * 
+	 * @param credential
+	 *            the credential to submit to the remote endpoint for
+	 *            authentication.
+	 * @throws IOException
+	 *             if a communications error occurs.
+	 * @see #authenticate(byte[])
 	 */
-	public void disconnect() {
+	public void authenticate( String credential ) throws IOException {
+		authenticate( credential.getBytes() );
+	}
+
+	/**
+	 * Identifies the output stream as a FAST channel by sending a FAST protocol
+	 * header.
+	 * 
+	 * @throws IOException
+	 *             if a communications error occurs.
+	 * @see FAST#FAST_HEADER
+	 */
+	public void connect() throws IOException {
+		output.write( FAST_HEADER );
+		output.flush();
+	}
+
+	/**
+	 * Explicitly detaches the session, if any.
+	 */
+	public void detach() {
 		try {
-			output.write( Command.DISCONNECT );
+			output.write( Command.DETACH );
 			output.flush();
 			output.close();
 		} catch( IOException ignore ) {
@@ -131,36 +177,24 @@ public class WriteChannel implements FAST {
 	 * @throws IOException
 	 *             if a communications error occurs.
 	 */
-	public void greet( byte [] address ) throws IOException {
-		output.write( FAST_HEADER );
+	public void attach( byte [] address ) throws IOException {
+		output.write( Command.ATTACH );
 		IOUtils.writeSmallBuffer( output, address );
 		output.flush();
 	}
 
 	/**
-	 * Rejects an authentication request from the remote endpoint, then
-	 * disconnects the session.
+	 * Sends a greeting to the remote endpoint.
 	 * 
+	 * @param address
+	 *            the address on which the remote endpoint is expected to be
+	 *            listening.
 	 * @throws IOException
 	 *             if a communications error occurs.
-	 * @see #disconnect()
+	 * @see #attach(byte[])
 	 */
-	public void rejectAuthentication() throws IOException {
-		output.write( 0 );
-		disconnect();
-	}
-
-	/**
-	 * Rejects a greeting from the remote endpoint, then disconnects the
-	 * session.
-	 * 
-	 * @throws IOException
-	 *             if a communications error occurs.
-	 * @see #disconnect()
-	 */
-	public void rejectGreeting() throws IOException {
-		output.write( 0 );
-		disconnect();
+	public void attach( String address ) throws IOException {
+		attach( address.getBytes() );
 	}
 
 	/**
@@ -190,6 +224,7 @@ public class WriteChannel implements FAST {
 		output.write( packets.length );
 		for( Packet packet : packets ) {
 			PacketSerializer.write( packet, output );
+			eventHandler.onPacketSent( packet );
 		}
 		output.flush();
 	}
@@ -207,6 +242,18 @@ public class WriteChannel implements FAST {
 		output.write( Command.ACKNOWLEDGE );
 		IOUtils.writeInt( output, n );
 		output.flush();
+	}
+
+	/**
+	 * Assigns an event handler to this session to which events will be
+	 * dispatched.
+	 * 
+	 * @param eventHandler
+	 *            the object to which events associated with this session will
+	 *            be dispatched.
+	 */
+	public void setEventHandler( EventHandler eventHandler ) {
+		this.eventHandler = eventHandler;
 	}
 
 }

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en_US">
+	<body>
+		<p>Federated Asynchronous Transport (FAST) is a spiritual successor to eXtensible Messaging and Presence Protocol (XMPP/Jabber). The intention of FAST is to embrace minimalism in the core features it offers, while retaining the ability for applications to offer additional features at the layer above. The core principles of FAST are as follows:</p>
+		<ul>
+			<li>
+				<p>Unlike XMPP, FAST is designed to be extremely lightweight. Whereas XMPP communicates via XML and requires extensive negotiation in order to establish a stream, FAST communicates in binary using a handful of commands.</p>
+			</li>
+			<li>
+				<p>Much like its predecessor, FAST is designed to be a federated system where packets are routed through one or more nodes before finally reaching their destination. Like email and XMPP when used with an offline message queue, the sender and the recipient of a packet need not be online at the same time in order for communications to occur between them.</p>
+			</li>
+			<li>
+				<p>A FAST node may be in exactly one of three states: Detached, Attached, or Trusted.</p>
+				<dl>
+					<dt>Detached</dt>
+					<dd>The node is not connected to any other nodes. When in this state, no packets may be sent or received.</dd>
+					<dt>Attached</dt>
+					<dd>The node is attached to at least one other node. When in this state, protocol negotiation has completed, but trust has not yet been established.</dd>
+					<dt>Trusted</dt>
+					<dd>The node is attached to at least one other node wherein mutual trust has been established. When in this state, packets may be sent and received.</dd>
+				</dl>
+				<p>When establishing a session between two nodes, there is an <b>initiator</b> and a <b>responder</b>. The <i>initiator</i> is designated to be the node initiating the session. The other node is the <i>responder</i>. The <i>responder</i> assigns a session ID to mutually identify the session going forward.</p>
+				<p>After establishing a session, the <i>initiator</i> must request an address from the <i>responder</i> -- this is done via <b>authentication</b>. If the <i>responder</i> accepts the credential provided by the <i>initiator</i> for authentication, then it assigns an <b>address</b> to the <i>initiator</i>.</p>
+				<p>An <b>address</b> is a long-term identifier for a node within the FAST ecosystem, and is expected to persist across multiple sessions.</p>
+				<p>Once a session has been assigned an address, packets can be routed to/from that session until it is destroyed or disconnected.</p>
+			</li>
+		</ul>
+	</body>
+</html>

@@ -1,0 +1,5 @@
+# Maven's build output directory
+/target
+
+# Mac OS X junk files.
+.DS_Store

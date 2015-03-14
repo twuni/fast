@@ -29,23 +29,9 @@ public class EventHandlers extends EventHandlerBase {
 	}
 
 	@Override
-	public void onCredentialReceived( byte [] credential ) {
+	public void onAttachRequested( byte [] address ) {
 		for( EventHandler eventHandler : eventHandlers ) {
-			eventHandler.onCredentialReceived( credential );
-		}
-	}
-
-	@Override
-	public void onIdentityReceived( byte [] identity ) {
-		for( EventHandler eventHandler : eventHandlers ) {
-			eventHandler.onIdentityReceived( identity );
-		}
-	}
-
-	@Override
-	public void onSessionCreated( byte [] sessionID ) {
-		for( EventHandler eventHandler : eventHandlers ) {
-			eventHandler.onSessionCreated( sessionID );
+			eventHandler.onAttachRequested( address );
 		}
 	}
 
@@ -53,6 +39,13 @@ public class EventHandlers extends EventHandlerBase {
 	public void onConnected() {
 		for( EventHandler eventHandler : eventHandlers ) {
 			eventHandler.onConnected();
+		}
+	}
+
+	@Override
+	public void onCredentialReceived( byte [] credential ) {
+		for( EventHandler eventHandler : eventHandlers ) {
+			eventHandler.onCredentialReceived( credential );
 		}
 	}
 
@@ -78,9 +71,9 @@ public class EventHandlers extends EventHandlerBase {
 	}
 
 	@Override
-	public void onAttachRequested( byte [] address ) {
+	public void onIdentityReceived( byte [] identity ) {
 		for( EventHandler eventHandler : eventHandlers ) {
-			eventHandler.onAttachRequested( address );
+			eventHandler.onIdentityReceived( identity );
 		}
 	}
 
@@ -95,6 +88,13 @@ public class EventHandlers extends EventHandlerBase {
 	public void onPacketSent( Packet packet ) {
 		for( EventHandler eventHandler : eventHandlers ) {
 			eventHandler.onPacketSent( packet );
+		}
+	}
+
+	@Override
+	public void onSessionCreated( byte [] sessionID ) {
+		for( EventHandler eventHandler : eventHandlers ) {
+			eventHandler.onSessionCreated( sessionID );
 		}
 	}
 

@@ -16,9 +16,23 @@ public class Session implements FAST {
 
 	/**
 	 * Initializes a new FAST session between the given {@code input} stream and
+	 * the given {@code output} stream without setting an event handler.
+	 *
+	 * @param input
+	 *            the stream from which responses will be read.
+	 * @param output
+	 *            the stream to which requests will be written.
+	 * @see #Session(InputStream, OutputStream, EventHandler)
+	 */
+	public Session( InputStream input, OutputStream output ) {
+		this( input, output, null );
+	}
+
+	/**
+	 * Initializes a new FAST session between the given {@code input} stream and
 	 * the given {@code output} stream, dispatching events to the given
 	 * {@code eventHandler}.
-	 * 
+	 *
 	 * @param input
 	 *            the stream from which responses will be read.
 	 * @param output
@@ -35,23 +49,18 @@ public class Session implements FAST {
 	}
 
 	/**
-	 * Initializes a new FAST session between the given {@code input} stream and
-	 * the given {@code output} stream without setting an event handler.
-	 * 
-	 * @param input
-	 *            the stream from which responses will be read.
-	 * @param output
-	 *            the stream to which requests will be written.
-	 * @see #Session(InputStream, OutputStream, EventHandler)
+	 * Returns the underlying read channel for this session.
+	 *
+	 * @return the underlying read channel for this session.
 	 */
-	public Session( InputStream input, OutputStream output ) {
-		this( input, output, null );
+	public ReadChannel read() {
+		return reader;
 	}
 
 	/**
 	 * Assigns an event handler to this session to which events will be
 	 * dispatched.
-	 * 
+	 *
 	 * @param eventHandler
 	 *            the object to which events associated with this session will
 	 *            be dispatched.
@@ -64,20 +73,11 @@ public class Session implements FAST {
 
 	/**
 	 * Returns the underlying write channel for this session.
-	 * 
+	 *
 	 * @return the underlying write channel for this session.
 	 */
 	public WriteChannel write() {
 		return writer;
-	}
-
-	/**
-	 * Returns the underlying read channel for this session.
-	 * 
-	 * @return the underlying read channel for this session.
-	 */
-	public ReadChannel read() {
-		return reader;
 	}
 
 }

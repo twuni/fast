@@ -15,7 +15,19 @@ public class LimitedInputStream implements FAST {
 
 	/**
 	 * Initializes a new wrapper around the given {@code buffer}.
-	 * 
+	 *
+	 * @param buffer
+	 *            a buffer containing the data to be wrapped.
+	 * @see ByteArrayInputStream#ByteArrayInputStream(byte[])
+	 * @see #LimitedInputStream(InputStream, int)
+	 */
+	public LimitedInputStream( byte [] buffer ) {
+		this( new ByteArrayInputStream( buffer ), buffer.length );
+	}
+
+	/**
+	 * Initializes a new wrapper around the given {@code buffer}.
+	 *
 	 * @param buffer
 	 *            a buffer containing the data to be wrapped.
 	 * @param offset
@@ -30,21 +42,9 @@ public class LimitedInputStream implements FAST {
 	}
 
 	/**
-	 * Initializes a new wrapper around the given {@code buffer}.
-	 * 
-	 * @param buffer
-	 *            a buffer containing the data to be wrapped.
-	 * @see ByteArrayInputStream#ByteArrayInputStream(byte[])
-	 * @see #LimitedInputStream(InputStream, int)
-	 */
-	public LimitedInputStream( byte [] buffer ) {
-		this( new ByteArrayInputStream( buffer ), buffer.length );
-	}
-
-	/**
 	 * Initializes a new wrapper around the given {@code inputStream} with the
 	 * given {@code size}.
-	 * 
+	 *
 	 * @param inputStream
 	 *            a stream containing at least {@code size} bytes.
 	 * @param limit
@@ -58,7 +58,7 @@ public class LimitedInputStream implements FAST {
 
 	/**
 	 * Returns the underlying input stream.
-	 * 
+	 *
 	 * @return the underlying input stream.
 	 */
 	public InputStream getInputStream() {
@@ -68,7 +68,7 @@ public class LimitedInputStream implements FAST {
 	/**
 	 * Returns the limit for the number of bytes to be read from the underlying
 	 * input stream.
-	 * 
+	 *
 	 * @return the limit for the number of bytes to be read from the underlying
 	 *         input stream.
 	 */

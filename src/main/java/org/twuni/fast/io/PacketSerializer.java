@@ -16,7 +16,7 @@ public class PacketSerializer implements FAST {
 
 	/**
 	 * Reads a FAST packet from the given {@code input} stream.
-	 * 
+	 *
 	 * @param input
 	 *            the stream from which the FAST packet will be read.
 	 * @return the FAST packet read from the given {@code input} stream.
@@ -33,7 +33,7 @@ public class PacketSerializer implements FAST {
 
 	/**
 	 * Writes the given {@code packet} to the given {@code output} stream.
-	 * 
+	 *
 	 * @param packet
 	 *            the packet to be written.
 	 * @param output

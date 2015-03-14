@@ -20,22 +20,17 @@ public class EventHandlerBase implements EventHandler {
 	}
 
 	@Override
-	public void onCredentialReceived( byte [] credential ) {
-		// By default, do nothing.
-	}
-
-	@Override
-	public void onIdentityReceived( byte [] identity ) {
-		// By default, do nothing.
-	}
-
-	@Override
-	public void onSessionCreated( byte [] sessionID ) {
+	public void onAttachRequested( byte [] address ) {
 		// By default, do nothing.
 	}
 
 	@Override
 	public void onConnected() {
+		// By default, do nothing.
+	}
+
+	@Override
+	public void onCredentialReceived( byte [] credential ) {
 		// By default, do nothing.
 	}
 
@@ -55,7 +50,7 @@ public class EventHandlerBase implements EventHandler {
 	}
 
 	@Override
-	public void onAttachRequested( byte [] address ) {
+	public void onIdentityReceived( byte [] identity ) {
 		// By default, do nothing.
 	}
 
@@ -66,6 +61,11 @@ public class EventHandlerBase implements EventHandler {
 
 	@Override
 	public void onPacketSent( Packet packet ) {
+		// By default, do nothing.
+	}
+
+	@Override
+	public void onSessionCreated( byte [] sessionID ) {
 		// By default, do nothing.
 	}
 

@@ -16,7 +16,7 @@ public class LimitedInputStreamSerializer implements FAST {
 	/**
 	 * Reads a buffer from the given {@code input} stream and wraps it in a
 	 * {@link LimitedInputStream}.
-	 * 
+	 *
 	 * @param input
 	 *            the stream from which the FAST packet will be read.
 	 * @return the buffer read from the given {@code input} stream, wrapped in a
@@ -34,7 +34,7 @@ public class LimitedInputStreamSerializer implements FAST {
 	/**
 	 * Writes the stream contained within the given {@code wrapper} to the given
 	 * {@code output} stream.
-	 * 
+	 *
 	 * @param wrapper
 	 *            the wrapper describing the stream to be written.
 	 * @param output
@@ -44,7 +44,7 @@ public class LimitedInputStreamSerializer implements FAST {
 	 *             {@code output} stream.
 	 */
 	public static void write( LimitedInputStream wrapper, OutputStream output ) throws IOException {
-		
+
 		InputStream stream = wrapper.getInputStream();
 		int limit = wrapper.getLimit();
 

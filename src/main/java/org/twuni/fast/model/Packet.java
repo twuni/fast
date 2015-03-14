@@ -13,9 +13,56 @@ public class Packet implements FAST {
 	private final LimitedInputStream payload;
 
 	/**
+	 * Initializes a new FAST packet with the given {@code address} and
+	 * {@code payload}, with the timestamp set to the current time.
+	 *
+	 * @param address
+	 *            The address to which the packet belongs.
+	 * @param payload
+	 *            The data contained within the packet.
+	 * @see System#currentTimeMillis()
+	 * @see #Packet(byte[], LimitedInputStream)
+	 */
+	public Packet( byte [] address, byte [] payload ) {
+		this( address, new LimitedInputStream( payload ) );
+	}
+
+	/**
+	 * Initializes a new FAST packet with the given {@code address} and
+	 * {@code payload}, with the timestamp set to the current time.
+	 *
+	 * @param address
+	 *            The address to which the packet belongs.
+	 * @param payload
+	 *            The data contained within the packet.
+	 * @see System#currentTimeMillis()
+	 * @see #Packet(long, byte[], LimitedInputStream)
+	 */
+	public Packet( byte [] address, LimitedInputStream payload ) {
+		this( System.currentTimeMillis(), address, payload );
+	}
+
+	/**
 	 * Initializes a new FAST packet with the given {@code timestamp},
 	 * {@code address}, and {@code payload}.
-	 * 
+	 *
+	 * @param timestamp
+	 *            The time, in milliseconds since Unix epoch, at which this
+	 *            packet was composed.
+	 * @param address
+	 *            The address to which the packet belongs.
+	 * @param payload
+	 *            The data contained within the packet.
+	 * @see #Packet(long, byte[], LimitedInputStream)
+	 */
+	public Packet( long timestamp, byte [] address, byte [] payload ) {
+		this( timestamp, address, new LimitedInputStream( payload ) );
+	}
+
+	/**
+	 * Initializes a new FAST packet with the given {@code timestamp},
+	 * {@code address}, and {@code payload}.
+	 *
 	 * @param timestamp
 	 *            The time, in milliseconds since Unix epoch, at which this
 	 *            packet was composed.
@@ -33,24 +80,7 @@ public class Packet implements FAST {
 	/**
 	 * Initializes a new FAST packet with the given {@code timestamp},
 	 * {@code address}, and {@code payload}.
-	 * 
-	 * @param timestamp
-	 *            The time, in milliseconds since Unix epoch, at which this
-	 *            packet was composed.
-	 * @param address
-	 *            The address to which the packet belongs.
-	 * @param payload
-	 *            The data contained within the packet.
-	 * @see #Packet(long, byte[], LimitedInputStream)
-	 */
-	public Packet( long timestamp, byte [] address, byte [] payload ) {
-		this( timestamp, address, new LimitedInputStream( payload ) );
-	}
-
-	/**
-	 * Initializes a new FAST packet with the given {@code timestamp},
-	 * {@code address}, and {@code payload}.
-	 * 
+	 *
 	 * @param timestamp
 	 *            The time, in milliseconds since Unix epoch, at which this
 	 *            packet was composed.
@@ -67,21 +97,7 @@ public class Packet implements FAST {
 	/**
 	 * Initializes a new FAST packet with the given {@code address} and
 	 * {@code payload}, with the timestamp set to the current time.
-	 * 
-	 * @param address
-	 *            The address to which the packet belongs.
-	 * @param payload
-	 *            The data contained within the packet.
-	 * @see #Packet(byte[], byte[])
-	 */
-	public Packet( String address, String payload ) {
-		this( address.getBytes(), payload.getBytes() );
-	}
-
-	/**
-	 * Initializes a new FAST packet with the given {@code address} and
-	 * {@code payload}, with the timestamp set to the current time.
-	 * 
+	 *
 	 * @param address
 	 *            The address to which the packet belongs.
 	 * @param payload
@@ -95,47 +111,20 @@ public class Packet implements FAST {
 	/**
 	 * Initializes a new FAST packet with the given {@code address} and
 	 * {@code payload}, with the timestamp set to the current time.
-	 * 
+	 *
 	 * @param address
 	 *            The address to which the packet belongs.
 	 * @param payload
 	 *            The data contained within the packet.
-	 * @see System#currentTimeMillis()
-	 * @see #Packet(long, byte[], LimitedInputStream)
+	 * @see #Packet(byte[], byte[])
 	 */
-	public Packet( byte [] address, LimitedInputStream payload ) {
-		this( System.currentTimeMillis(), address, payload );
-	}
-
-	/**
-	 * Initializes a new FAST packet with the given {@code address} and
-	 * {@code payload}, with the timestamp set to the current time.
-	 * 
-	 * @param address
-	 *            The address to which the packet belongs.
-	 * @param payload
-	 *            The data contained within the packet.
-	 * @see System#currentTimeMillis()
-	 * @see #Packet(byte[], LimitedInputStream)
-	 */
-	public Packet( byte [] address, byte [] payload ) {
-		this( address, new LimitedInputStream( payload ) );
-	}
-
-	/**
-	 * Returns the time, in milliseconds since Unix epoch, at which this packet
-	 * was composed.
-	 * 
-	 * @return the time, in milliseconds since Unix epoch, at which this packet
-	 *         was composed.
-	 */
-	public long getTimestamp() {
-		return timestamp;
+	public Packet( String address, String payload ) {
+		this( address.getBytes(), payload.getBytes() );
 	}
 
 	/**
 	 * Returns the address to which this packet belongs.
-	 * 
+	 *
 	 * @return the address to which this packet belongs.
 	 */
 	public byte [] getAddress() {
@@ -144,11 +133,22 @@ public class Packet implements FAST {
 
 	/**
 	 * Returns the data contained within this packet.
-	 * 
+	 *
 	 * @return the data contained within this packet.
 	 */
 	public LimitedInputStream getPayload() {
 		return payload;
+	}
+
+	/**
+	 * Returns the time, in milliseconds since Unix epoch, at which this packet
+	 * was composed.
+	 *
+	 * @return the time, in milliseconds since Unix epoch, at which this packet
+	 *         was composed.
+	 */
+	public long getTimestamp() {
+		return timestamp;
 	}
 
 }

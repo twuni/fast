@@ -17,12 +17,12 @@ public class FASTException extends Exception implements FAST {
 		super( message );
 	}
 
-	public FASTException( Throwable cause ) {
-		super( cause );
-	}
-
 	public FASTException( String message, Throwable cause ) {
 		super( message, cause );
+	}
+
+	public FASTException( Throwable cause ) {
+		super( cause );
 	}
 
 }

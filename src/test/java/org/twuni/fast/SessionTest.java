@@ -14,16 +14,58 @@ import org.twuni.fast.model.Packet;
 
 public class SessionTest {
 
+	static class ClientTestEventHandler extends EventHandlerBase {
+
+		private final WriteChannel writeChannel;
+
+		public ClientTestEventHandler( Session session ) {
+			this( session.write() );
+		}
+
+		public ClientTestEventHandler( WriteChannel writeChannel ) {
+			this.writeChannel = writeChannel;
+		}
+
+		@Override
+		public void onIdentityReceived( byte [] identity ) {
+			try {
+				writeChannel.fetch();
+				writeChannel.send( new Packet( "bob@example.com", "Hello." ) );
+			} catch( Throwable exception ) {
+				onException( exception );
+			}
+		}
+
+		@Override
+		public void onSessionCreated( byte [] sessionID ) {
+			try {
+				writeChannel.authenticate( "alice\np8ssw0rd" );
+			} catch( Throwable exception ) {
+				onException( exception );
+			}
+		}
+
+	}
+
 	static class ServerTestEventHandler extends EventHandlerBase {
 
 		private final WriteChannel writeChannel;
+
+		public ServerTestEventHandler( Session session ) {
+			this( session.write() );
+		}
 
 		public ServerTestEventHandler( WriteChannel writeChannel ) {
 			this.writeChannel = writeChannel;
 		}
 
-		public ServerTestEventHandler( Session session ) {
-			this( session.write() );
+		@Override
+		public void onAttachRequested( byte [] address ) {
+			try {
+				writeChannel.session( "12345" );
+			} catch( Throwable exception ) {
+				onException( exception );
+			}
 		}
 
 		@Override
@@ -45,50 +87,8 @@ public class SessionTest {
 		}
 
 		@Override
-		public void onAttachRequested( byte [] address ) {
-			try {
-				writeChannel.session( "12345" );
-			} catch( Throwable exception ) {
-				onException( exception );
-			}
-		}
-
-		@Override
 		public void onException( Throwable exception ) {
 			System.out.print( String.format( "(error :type \"%s\" :message \"%s\")", exception.getClass().getName(), exception.getLocalizedMessage() ) );
-		}
-
-	}
-
-	static class ClientTestEventHandler extends EventHandlerBase {
-
-		private final WriteChannel writeChannel;
-
-		public ClientTestEventHandler( WriteChannel writeChannel ) {
-			this.writeChannel = writeChannel;
-		}
-
-		public ClientTestEventHandler( Session session ) {
-			this( session.write() );
-		}
-
-		@Override
-		public void onSessionCreated( byte [] sessionID ) {
-			try {
-				writeChannel.authenticate( "alice\np8ssw0rd" );
-			} catch( Throwable exception ) {
-				onException( exception );
-			}
-		}
-
-		@Override
-		public void onIdentityReceived( byte [] identity ) {
-			try {
-				writeChannel.fetch();
-				writeChannel.send( new Packet( "bob@example.com", "Hello." ) );
-			} catch( Throwable exception ) {
-				onException( exception );
-			}
 		}
 
 	}

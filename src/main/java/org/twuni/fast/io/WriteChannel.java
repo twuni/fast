@@ -21,7 +21,7 @@ public class WriteChannel implements FAST {
 	/**
 	 * Initializes this reader to write to the given {@code output} stream,
 	 * without assigning an event handler.
-	 * 
+	 *
 	 * @param output
 	 *            the stream to which data will be written.
 	 */
@@ -32,7 +32,7 @@ public class WriteChannel implements FAST {
 	/**
 	 * Initializes this reader to write to the given {@code output} stream,
 	 * dispatching events to the given {@code eventHandler}.
-	 * 
+	 *
 	 * @param output
 	 *            the stream to which data will be written.
 	 * @param eventHandler
@@ -44,66 +44,37 @@ public class WriteChannel implements FAST {
 	}
 
 	/**
-	 * Accepts an authentication request, assigning the given {@code address} to
-	 * the remote endpoint.
-	 * 
+	 * Sends a greeting to the remote endpoint.
+	 *
 	 * @param address
-	 *            the address to be assigned to the remote endpoint.
-	 * @throws IOException
-	 *             if a communications error occurs.
-	 * @see #identify(byte[])
-	 */
-	public void identify( String address ) throws IOException {
-		identify( address.getBytes() );
-	}
-
-	/**
-	 * Accepts an authentication request, assigning the given {@code address} to
-	 * the remote endpoint.
-	 * 
-	 * @param address
-	 *            the address to be assigned to the remote endpoint.
+	 *            the address on which the remote endpoint is expected to be
+	 *            listening.
 	 * @throws IOException
 	 *             if a communications error occurs.
 	 */
-	public void identify( byte [] address ) throws IOException {
-		output.write( Command.IDENTIFY );
+	public void attach( byte [] address ) throws IOException {
+		output.write( Command.ATTACH );
 		IOUtils.writeSmallBuffer( output, address );
 		output.flush();
 	}
 
 	/**
-	 * Accepts a greeting, assigning the given {@code sessionID} to the remote
-	 * endpoint.
-	 * 
-	 * @param sessionID
-	 *            the session ID to be assigned to the remote endpoint.
+	 * Sends a greeting to the remote endpoint.
+	 *
+	 * @param address
+	 *            the address on which the remote endpoint is expected to be
+	 *            listening.
 	 * @throws IOException
 	 *             if a communications error occurs.
-	 * @see #session(byte[])
+	 * @see #attach(byte[])
 	 */
-	public void session( String sessionID ) throws IOException {
-		session( sessionID.getBytes() );
-	}
-
-	/**
-	 * Accepts a greeting, assigning the given {@code sessionID} to the remote
-	 * endpoint.
-	 * 
-	 * @param sessionID
-	 *            the session ID to be assigned to the remote endpoint.
-	 * @throws IOException
-	 *             if a communications error occurs.
-	 */
-	public void session( byte [] sessionID ) throws IOException {
-		output.write( Command.SESSION );
-		IOUtils.writeSmallBuffer( output, sessionID );
-		output.flush();
+	public void attach( String address ) throws IOException {
+		attach( address.getBytes() );
 	}
 
 	/**
 	 * Authenticates to the remote endpoint with the given {@code credential}.
-	 * 
+	 *
 	 * @param credential
 	 *            the credential to submit to the remote endpoint for
 	 *            authentication.
@@ -118,7 +89,7 @@ public class WriteChannel implements FAST {
 
 	/**
 	 * Authenticates to the remote endpoint with the given {@code credential}.
-	 * 
+	 *
 	 * @param credential
 	 *            the credential to submit to the remote endpoint for
 	 *            authentication.
@@ -133,7 +104,7 @@ public class WriteChannel implements FAST {
 	/**
 	 * Identifies the output stream as a FAST channel by sending a FAST protocol
 	 * header.
-	 * 
+	 *
 	 * @throws IOException
 	 *             if a communications error occurs.
 	 * @see FAST#FAST_HEADER
@@ -159,7 +130,7 @@ public class WriteChannel implements FAST {
 	/**
 	 * Requests that the remote endpoint immediately deliver any pending
 	 * messages queued for delivery to the local endpoint.
-	 * 
+	 *
 	 * @throws IOException
 	 *             if a communications error occurs.
 	 */
@@ -169,38 +140,38 @@ public class WriteChannel implements FAST {
 	}
 
 	/**
-	 * Sends a greeting to the remote endpoint.
-	 * 
+	 * Accepts an authentication request, assigning the given {@code address} to
+	 * the remote endpoint.
+	 *
 	 * @param address
-	 *            the address on which the remote endpoint is expected to be
-	 *            listening.
+	 *            the address to be assigned to the remote endpoint.
 	 * @throws IOException
 	 *             if a communications error occurs.
 	 */
-	public void attach( byte [] address ) throws IOException {
-		output.write( Command.ATTACH );
+	public void identify( byte [] address ) throws IOException {
+		output.write( Command.IDENTIFY );
 		IOUtils.writeSmallBuffer( output, address );
 		output.flush();
 	}
 
 	/**
-	 * Sends a greeting to the remote endpoint.
-	 * 
+	 * Accepts an authentication request, assigning the given {@code address} to
+	 * the remote endpoint.
+	 *
 	 * @param address
-	 *            the address on which the remote endpoint is expected to be
-	 *            listening.
+	 *            the address to be assigned to the remote endpoint.
 	 * @throws IOException
 	 *             if a communications error occurs.
-	 * @see #attach(byte[])
+	 * @see #identify(byte[])
 	 */
-	public void attach( String address ) throws IOException {
-		attach( address.getBytes() );
+	public void identify( String address ) throws IOException {
+		identify( address.getBytes() );
 	}
 
 	/**
 	 * Requests an acknowledgment of the number of packets received by the
 	 * remote endpoint during this session.
-	 * 
+	 *
 	 * @throws IOException
 	 *             if a communications error occurs.
 	 */
@@ -213,7 +184,7 @@ public class WriteChannel implements FAST {
 	 * Sends each of the given packets to the remote endpoint. The address
 	 * associated with each packet is expected to identify the intended
 	 * recipient.
-	 * 
+	 *
 	 * @param packets
 	 *            the packets to be sent.
 	 * @throws IOException
@@ -232,7 +203,7 @@ public class WriteChannel implements FAST {
 	/**
 	 * Sends an acknowledgment that the local endpoint has received {@code n}
 	 * packets from the remote endpoint during this session.
-	 * 
+	 *
 	 * @param n
 	 *            the number of packets received during this session.
 	 * @throws IOException
@@ -245,9 +216,38 @@ public class WriteChannel implements FAST {
 	}
 
 	/**
+	 * Accepts a greeting, assigning the given {@code sessionID} to the remote
+	 * endpoint.
+	 *
+	 * @param sessionID
+	 *            the session ID to be assigned to the remote endpoint.
+	 * @throws IOException
+	 *             if a communications error occurs.
+	 */
+	public void session( byte [] sessionID ) throws IOException {
+		output.write( Command.SESSION );
+		IOUtils.writeSmallBuffer( output, sessionID );
+		output.flush();
+	}
+
+	/**
+	 * Accepts a greeting, assigning the given {@code sessionID} to the remote
+	 * endpoint.
+	 *
+	 * @param sessionID
+	 *            the session ID to be assigned to the remote endpoint.
+	 * @throws IOException
+	 *             if a communications error occurs.
+	 * @see #session(byte[])
+	 */
+	public void session( String sessionID ) throws IOException {
+		session( sessionID.getBytes() );
+	}
+
+	/**
 	 * Assigns an event handler to this session to which events will be
 	 * dispatched.
-	 * 
+	 *
 	 * @param eventHandler
 	 *            the object to which events associated with this session will
 	 *            be dispatched.

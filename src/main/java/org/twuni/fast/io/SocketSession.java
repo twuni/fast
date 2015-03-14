@@ -11,12 +11,12 @@ import org.twuni.fast.Session;
  */
 public class SocketSession extends Session {
 
-	public SocketSession( Socket socket, EventHandler eventHandler ) throws IOException {
-		super( socket.getInputStream(), socket.getOutputStream(), eventHandler );
-	}
-
 	public SocketSession( Socket socket ) throws IOException {
 		this( socket, null );
+	}
+
+	public SocketSession( Socket socket, EventHandler eventHandler ) throws IOException {
+		super( socket.getInputStream(), socket.getOutputStream(), eventHandler );
 	}
 
 }

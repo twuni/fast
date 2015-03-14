@@ -42,7 +42,7 @@ public class ReadChannel implements FAST {
 	/**
 	 * Initializes this reader to read from the given {@code input} stream,
 	 * without assigning an event handler.
-	 * 
+	 *
 	 * @param input
 	 *            the stream from which to read.
 	 * @see #ReadChannel(InputStream, EventHandler)
@@ -54,7 +54,7 @@ public class ReadChannel implements FAST {
 	/**
 	 * Initializes this reader to read from the given {@code input} stream,
 	 * dispatching events to the given {@code eventHandler}.
-	 * 
+	 *
 	 * @param input
 	 *            the stream from which to read.
 	 * @param eventHandler
@@ -69,7 +69,7 @@ public class ReadChannel implements FAST {
 	 * Attempts to read a FAST protocol header from the underlying stream. If
 	 * successful, dispatches to {@link EventHandler#onConnected()}. Otherwise,
 	 * triggers a disconnection.
-	 * 
+	 *
 	 * @return this object, for chaining commands together.
 	 * @throws IOException
 	 *             if a communications error occurs.
@@ -87,7 +87,7 @@ public class ReadChannel implements FAST {
 
 	/**
 	 * Explicitly disconnects from the remote endpoint.
-	 * 
+	 *
 	 * @throws IOException
 	 *             if a communications error occurs.
 	 */
@@ -99,7 +99,7 @@ public class ReadChannel implements FAST {
 
 	/**
 	 * Executes the given {@code command}.
-	 * 
+	 *
 	 * @param command
 	 *            the command to be executed.
 	 * @throws IOException
@@ -152,7 +152,7 @@ public class ReadChannel implements FAST {
 	/**
 	 * Enters a read-execute loop on commands sent by the remote endpoint until
 	 * either the thread is interrupted or an exception occurs.
-	 * 
+	 *
 	 * @return this object, for chaining commands together.
 	 * @throws IOException
 	 *             if/when a communications error occurs.
@@ -169,7 +169,7 @@ public class ReadChannel implements FAST {
 	 * Initializes a new {@link Runnable} object that simply calls
 	 * {@link #loop()} on this object -- useful for spawning new {@link Thread}s
 	 * {@link TimerTask}s, etc.
-	 * 
+	 *
 	 * @return a new {@link Runnable} object that simply calls {@link #loop()}
 	 *         on this object until either an exception occurs or its thread is
 	 *         interrupted.
@@ -181,7 +181,7 @@ public class ReadChannel implements FAST {
 	/**
 	 * Spawns a new thread to call {@link #loop()} on this object, starts the
 	 * thread, and returns the created thread.
-	 * 
+	 *
 	 * @return the thread created to {@link #loop()} this object.
 	 * @see #looper()
 	 * @see #loop()
@@ -194,7 +194,7 @@ public class ReadChannel implements FAST {
 
 	/**
 	 * Reads and executes the next command in the stream.
-	 * 
+	 *
 	 * @return this object, for chaining commands together.
 	 * @throws IOException
 	 *             if a communications error occurs.
@@ -209,7 +209,7 @@ public class ReadChannel implements FAST {
 
 	/**
 	 * Reads the next command from the underlying stream.
-	 * 
+	 *
 	 * @return the next command in the underlying stream.
 	 * @throws IOException
 	 *             if a communications error occurs.
@@ -222,7 +222,7 @@ public class ReadChannel implements FAST {
 	/**
 	 * Assigns an event handler to this session to which events will be
 	 * dispatched.
-	 * 
+	 *
 	 * @param eventHandler
 	 *            the object to which events associated with this session will
 	 *            be dispatched.

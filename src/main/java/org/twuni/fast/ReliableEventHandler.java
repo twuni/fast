@@ -18,12 +18,12 @@ public class ReliableEventHandler extends EventHandlerBase {
 		this.reliability = reliability;
 	}
 
-	public ReliableEventHandler( WriteChannel writeChannel ) {
-		this( new Reliability( writeChannel ) );
-	}
-
 	public ReliableEventHandler( Session session ) {
 		this( session.write() );
+	}
+
+	public ReliableEventHandler( WriteChannel writeChannel ) {
+		this( new Reliability( writeChannel ) );
 	}
 
 	@Override
@@ -34,11 +34,6 @@ public class ReliableEventHandler extends EventHandlerBase {
 	@Override
 	public void onAcknowledgmentRequested() {
 		reliability.onAcknowledgmentRequested();
-	}
-
-	@Override
-	public void onSessionCreated( byte [] sessionID ) {
-		reliability.reset();
 	}
 
 	@Override
@@ -54,6 +49,11 @@ public class ReliableEventHandler extends EventHandlerBase {
 	@Override
 	public void onPacketSent( Packet packet ) {
 		reliability.onPacketSent( packet );
+	}
+
+	@Override
+	public void onSessionCreated( byte [] sessionID ) {
+		reliability.reset();
 	}
 
 	public void restoreState( InputStream input ) throws IOException {

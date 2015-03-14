@@ -2,7 +2,6 @@ package org.twuni.fast.util;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.twuni.fast.util.IOUtils;
 
 public class IOUtilsTest extends Assert {
 

@@ -29,6 +29,9 @@ public class Session implements FAST {
 	public Session( InputStream input, OutputStream output, EventHandler eventHandler ) {
 		reader = new ReadChannel( input, eventHandler );
 		writer = new WriteChannel( output, eventHandler );
+		if( eventHandler == null ) {
+			setEventHandler( new ReliableEventHandler( writer ) );
+		}
 	}
 
 	/**

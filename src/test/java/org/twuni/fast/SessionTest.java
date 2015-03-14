@@ -9,9 +9,89 @@ import javax.net.SocketFactory;
 
 import org.junit.Test;
 import org.twuni.fast.io.SocketSession;
+import org.twuni.fast.io.WriteChannel;
 import org.twuni.fast.model.Packet;
 
 public class SessionTest {
+
+	static class ServerTestEventHandler extends EventHandlerBase {
+
+		private final WriteChannel writeChannel;
+
+		public ServerTestEventHandler( WriteChannel writeChannel ) {
+			this.writeChannel = writeChannel;
+		}
+
+		public ServerTestEventHandler( Session session ) {
+			this( session.write() );
+		}
+
+		@Override
+		public void onCredentialReceived( byte [] credential ) {
+			try {
+				writeChannel.identify( "alice@example.com" );
+			} catch( Throwable exception ) {
+				onException( exception );
+			}
+		}
+
+		@Override
+		public void onDisconnected() {
+			try {
+				writeChannel.detach();
+			} catch( Throwable exception ) {
+				onException( exception );
+			}
+		}
+
+		@Override
+		public void onAttachRequested( byte [] address ) {
+			try {
+				writeChannel.session( "12345" );
+			} catch( Throwable exception ) {
+				onException( exception );
+			}
+		}
+
+		@Override
+		public void onException( Throwable exception ) {
+			System.out.print( String.format( "(error :type \"%s\" :message \"%s\")", exception.getClass().getName(), exception.getLocalizedMessage() ) );
+		}
+
+	}
+
+	static class ClientTestEventHandler extends EventHandlerBase {
+
+		private final WriteChannel writeChannel;
+
+		public ClientTestEventHandler( WriteChannel writeChannel ) {
+			this.writeChannel = writeChannel;
+		}
+
+		public ClientTestEventHandler( Session session ) {
+			this( session.write() );
+		}
+
+		@Override
+		public void onSessionCreated( byte [] sessionID ) {
+			try {
+				writeChannel.authenticate( "alice\np8ssw0rd" );
+			} catch( Throwable exception ) {
+				onException( exception );
+			}
+		}
+
+		@Override
+		public void onIdentityReceived( byte [] identity ) {
+			try {
+				writeChannel.fetch();
+				writeChannel.send( new Packet( "bob@example.com", "Hello." ) );
+			} catch( Throwable exception ) {
+				onException( exception );
+			}
+		}
+
+	}
 
 	@Test
 	public void happyPath() throws IOException {
@@ -29,87 +109,17 @@ public class SessionTest {
 
 						Socket client = server.accept();
 
-						final Session session = new SocketSession( client );
-						final Reliability vault = new Reliability( session );
+						Session session = new SocketSession( client );
 
-						session.setEventHandler( new EventHandler() {
-
-							@Override
-							public void onAcknowledgmentReceived( int n ) {
-								vault.onAcknowledgmentReceived( n );
-							}
-
-							@Override
-							public void onAcknowledgmentRequested() {
-								vault.onAcknowledgmentRequested();
-							}
-
-							@Override
-							public void onCredentialReceived( byte [] credential ) {
-								vault.onPacketSent( new Packet( "bob@example.com", "Hi." ) );
-								vault.onPacketSent( new Packet( "charlie@example.com", "Hey, do you want to meet for lunch?" ) );
-								vault.onPacketSent( new Packet( "bob@example.com", "I lost my phone." ) );
-								try {
-									session.write().identify( "alice@example.com" );
-								} catch( Throwable exception ) {
-									onException( exception );
-								}
-							}
-
-							@Override
-							public void onConnected() {
-								// Do nothing.
-							}
-
-							@Override
-							public void onDisconnected() {
-								try {
-									session.write().detach();
-								} catch( Throwable exception ) {
-									onException( exception );
-								}
-							}
+						session.setEventHandler( new EventHandlers( new ReliableEventHandler( session ) {
 
 							@Override
 							public void onFetchRequested() {
-								vault.flush();
+								onPacketSent( new Packet( "bob@example.com", "Hi." ) );
+								super.onFetchRequested();
 							}
 
-							@Override
-							public void onAttachRequested( byte [] address ) {
-								try {
-									session.write().session( "12345" );
-								} catch( Throwable exception ) {
-									onException( exception );
-								}
-							}
-
-							@Override
-							public void onPacketReceived( Packet packet ) {
-								vault.onPacketReceived();
-							}
-
-							@Override
-							public void onPacketSent( Packet packet ) {
-								vault.onPacketSent( packet );
-							}
-
-							@Override
-							public void onException( Throwable exception ) {
-								System.out.print( String.format( "(error :type %s :message %s)", exception.getClass().getName(), exception.getLocalizedMessage() ) );
-							}
-
-							@Override
-							public void onIdentityReceived( byte [] identity ) {
-								// A server endpoint does nothing here.
-							}
-
-							@Override
-							public void onSessionCreated( byte [] sessionID ) {
-								// A server endpoint does nothing here.
-							}
-
-						} );
+						}, new ServerTestEventHandler( session ) ) );
 
 						session.read().accept().loopInBackground();
 
@@ -127,63 +137,9 @@ public class SessionTest {
 
 		Socket client = SocketFactory.getDefault().createSocket( "localhost", 4857 );
 
-		final Session session = new SocketSession( client );
-		final Reliability vault = new Reliability( session );
+		Session session = new SocketSession( client );
 
-		session.setEventHandler( new ClojureEventAdapter() {
-
-			@Override
-			public void onSessionCreated( byte [] sessionID ) {
-				super.onSessionCreated( sessionID );
-				try {
-					session.write().authenticate( "alice\np8ssw0rd" );
-				} catch( Throwable exception ) {
-					onException( exception );
-				}
-			}
-
-			@Override
-			public void onIdentityReceived( byte [] identity ) {
-				super.onIdentityReceived( identity );
-				try {
-					session.write().fetch();
-					Packet packet = new Packet( "bob@example.com", "Hello." );
-					session.write().send( packet );
-				} catch( Throwable exception ) {
-					onException( exception );
-				}
-			}
-
-			@Override
-			public void onAcknowledgmentReceived( int n ) {
-				super.onAcknowledgmentReceived( n );
-				vault.onAcknowledgmentReceived( n );
-			}
-
-			@Override
-			public void onAcknowledgmentRequested() {
-				super.onAcknowledgmentRequested();
-				vault.onAcknowledgmentRequested();
-			}
-
-			@Override
-			public void onPacketSent( Packet packet ) {
-				super.onPacketSent( packet );
-				vault.onPacketSent( packet );
-				try {
-					session.write().requestAcknowledgment();
-				} catch( Throwable exception ) {
-					onException( exception );
-				}
-			}
-
-			@Override
-			public void onPacketReceived( Packet packet ) {
-				super.onPacketReceived( packet );
-				vault.onPacketReceived();
-			}
-
-		} );
+		session.setEventHandler( new EventHandlers( new ReliableEventHandler( session ), new ClojureEventAdapter( System.out ), new ClientTestEventHandler( session ) ) );
 
 		System.out.print( "(fast [" );
 
@@ -192,7 +148,7 @@ public class SessionTest {
 		session.read().loopInBackground();
 
 		try {
-			Thread.sleep( 1000 );
+			Thread.sleep( 25 );
 		} catch( InterruptedException ignore ) {
 			// Ignore.
 		}

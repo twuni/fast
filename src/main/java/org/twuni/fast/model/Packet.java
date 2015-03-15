@@ -1,5 +1,7 @@
 package org.twuni.fast.model;
 
+import java.util.Arrays;
+
 import org.twuni.fast.FAST;
 import org.twuni.fast.io.LimitedInputStream;
 
@@ -149,6 +151,27 @@ public class Packet implements FAST {
 	 */
 	public long getTimestamp() {
 		return timestamp;
+	}
+
+	/**
+	 * Returns a JSON-formatted description of this packet, for debugging
+	 * purposes.
+	 *
+	 * @return a JSON-formatted description of this packet, for debugging
+	 *         purposes.
+	 */
+	public String toJSONString() {
+		return String.format( "{\"timestamp\":%d,\"address\":%s,\"payload\":{\"limit\":%d}}", Long.valueOf( timestamp ), Arrays.toString( address ), Integer.valueOf( payload.getLimit() ) );
+	}
+
+	/**
+	 * Returns a description of this packet, for debugging purposes.
+	 *
+	 * @return a description of this packet, for debugging purposes.
+	 */
+	@Override
+	public String toString() {
+		return String.format( "%016x%08x%08x", Long.valueOf( timestamp ), Integer.valueOf( Arrays.hashCode( address ) ), Integer.valueOf( payload.getLimit() ) );
 	}
 
 }

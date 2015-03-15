@@ -1,12 +1,10 @@
 package org.twuni.fast;
 
-import org.twuni.fast.model.Packet;
-
 /**
  * An event handler is notified of events which have occurred during a
  * session.
  */
-public interface EventHandler extends FAST {
+public interface EventHandler extends PacketListener {
 
 	/**
 	 * This method is called whenever a remote endpoint has acknowledged that it
@@ -76,22 +74,6 @@ public interface EventHandler extends FAST {
 	 *            endpoint.
 	 */
 	public void onIdentityReceived( byte [] identity );
-
-	/**
-	 * This method is called just after a packet is received.
-	 *
-	 * @param packet
-	 *            the received packet.
-	 */
-	public void onPacketReceived( Packet packet );
-
-	/**
-	 * This method is called just after a packet has been sent.
-	 *
-	 * @param packet
-	 *            the sent packet.
-	 */
-	public void onPacketSent( Packet packet );
 
 	/**
 	 * This method is called whenever a session has been created.

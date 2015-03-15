@@ -7,6 +7,7 @@ import java.util.TimerTask;
 
 import org.twuni.fast.EventHandler;
 import org.twuni.fast.FAST;
+import org.twuni.fast.exception.FASTReadException;
 import org.twuni.fast.model.Command;
 import org.twuni.fast.model.Packet;
 import org.twuni.fast.util.IOUtils;
@@ -29,8 +30,8 @@ public class ReadChannel implements FAST {
 		public void run() {
 			try {
 				channel.loop();
-			} catch( IOException exception ) {
-				// Ignore.
+			} catch( FASTReadException ignore ) {
+				// Terminate the loop.
 			}
 		}
 	}
@@ -76,12 +77,17 @@ public class ReadChannel implements FAST {
 	 * @see EventHandler#onConnected()
 	 * @see #disconnect()
 	 */
-	public ReadChannel accept() throws IOException {
-		byte [] header = IOUtils.readFully( input, FAST_HEADER.length );
-		if( !Arrays.equals( header, FAST_HEADER ) ) {
-			return disconnect();
+	public ReadChannel accept() {
+		try {
+			byte [] header = IOUtils.readFully( input, FAST_HEADER.length );
+			if( !Arrays.equals( header, FAST_HEADER ) ) {
+				executeDetachCommand();
+				throw new FASTReadException();
+			}
+			eventHandler.onConnected();
+		} catch( IOException exception ) {
+			throw new FASTReadException( exception );
 		}
-		eventHandler.onConnected();
 		return this;
 	}
 
@@ -91,10 +97,41 @@ public class ReadChannel implements FAST {
 	 * @throws IOException
 	 *             if a communications error occurs.
 	 */
-	public ReadChannel disconnect() throws IOException {
-		input.close();
+	public ReadChannel disconnect() {
+		try {
+			input.close();
+		} catch( IOException ignore ) {
+			// Ignore.
+		}
 		eventHandler.onDisconnected();
 		return this;
+	}
+
+	private void executeAcknowledgmentCommand() {
+		try {
+			int n = IOUtils.readInt( input );
+			eventHandler.onAcknowledgmentReceived( n );
+		} catch( IOException exception ) {
+			throw new FASTReadException( exception );
+		}
+	}
+
+	private void executeAttachCommand() {
+		try {
+			byte [] address = IOUtils.readSmallBuffer( input );
+			eventHandler.onAttachRequested( address );
+		} catch( IOException exception ) {
+			throw new FASTReadException( exception );
+		}
+	}
+
+	private void executeAuthenticateCommand() {
+		try {
+			byte [] credential = IOUtils.readSmallBuffer( input );
+			eventHandler.onCredentialReceived( credential );
+		} catch( IOException exception ) {
+			throw new FASTReadException( exception );
+		}
 	}
 
 	/**
@@ -107,46 +144,83 @@ public class ReadChannel implements FAST {
 	 *             the command.
 	 * @see Command
 	 */
-	private void executeCommand( int command ) throws IOException {
+	private void executeCommand( int command ) {
 		switch( command ) {
 			case Command.ACKNOWLEDGE:
-				int n = IOUtils.readInt( input );
-				eventHandler.onAcknowledgmentReceived( n );
+				executeAcknowledgmentCommand();
 				break;
 			case Command.ATTACH:
-				byte [] address = IOUtils.readSmallBuffer( input );
-				eventHandler.onAttachRequested( address );
+				executeAttachCommand();
 				break;
 			case Command.AUTHENTICATE:
-				byte [] credential = IOUtils.readSmallBuffer( input );
-				eventHandler.onCredentialReceived( credential );
+				executeAuthenticateCommand();
 				break;
 			case Command.DETACH:
-				disconnect();
+				executeDetachCommand();
 				break;
 			case Command.FETCH:
-				eventHandler.onFetchRequested();
+				executeFetchCommand();
 				break;
 			case Command.IDENTIFY:
-				byte [] identity = IOUtils.readSmallBuffer( input );
-				eventHandler.onIdentityReceived( identity );
+				executeIdentifyCommand();
 				break;
 			case Command.REQUEST_ACKNOWLEDGMENT:
-				eventHandler.onAcknowledgmentRequested();
+				executeRequestAcknowledgmentCommand();
 				break;
 			case Command.SEND:
-				int packetCount = input.read();
-				for( int i = 0; i < packetCount; i++ ) {
-					Packet packet = PacketSerializer.read( input );
-					eventHandler.onPacketReceived( packet );
-				}
+				executeSendCommand();
 				break;
 			case Command.SESSION:
-				byte [] sessionID = IOUtils.readSmallBuffer( input );
-				eventHandler.onSessionCreated( sessionID );
+				executeSessionCommand();
 				break;
 			default:
 		}
+	}
+
+	private void executeDetachCommand() {
+		disconnect();
+	}
+
+	private void executeFetchCommand() {
+		eventHandler.onFetchRequested();
+	}
+
+	private void executeIdentifyCommand() {
+		try {
+			byte [] identity = IOUtils.readSmallBuffer( input );
+			eventHandler.onIdentityReceived( identity );
+		} catch( IOException exception ) {
+			throw new FASTReadException( exception );
+		}
+	}
+
+	private void executeRequestAcknowledgmentCommand() {
+		eventHandler.onAcknowledgmentRequested();
+	}
+
+	private void executeSendCommand() {
+		try {
+			int packetCount = input.read();
+			for( int i = 0; i < packetCount; i++ ) {
+				Packet packet = PacketSerializer.read( input );
+				eventHandler.onPacketReceived( packet );
+			}
+		} catch( IOException exception ) {
+			throw new FASTReadException( exception );
+		}
+	}
+
+	private void executeSessionCommand() {
+		try {
+			byte [] sessionID = IOUtils.readSmallBuffer( input );
+			eventHandler.onSessionCreated( sessionID );
+		} catch( IOException exception ) {
+			throw new FASTReadException( exception );
+		}
+	}
+
+	private String getLooperThreadName() {
+		return String.format( "%s(%x)", Looper.class.getName(), Integer.valueOf( hashCode() ) );
 	}
 
 	/**
@@ -158,7 +232,7 @@ public class ReadChannel implements FAST {
 	 *             if/when a communications error occurs.
 	 * @see #next()
 	 */
-	public ReadChannel loop() throws IOException {
+	public ReadChannel loop() {
 		while( !Thread.interrupted() ) {
 			next();
 		}
@@ -187,7 +261,7 @@ public class ReadChannel implements FAST {
 	 * @see #loop()
 	 */
 	public Thread loopInBackground() {
-		Thread thread = new Thread( looper() );
+		Thread thread = new Thread( looper(), getLooperThreadName() );
 		thread.start();
 		return thread;
 	}
@@ -202,7 +276,7 @@ public class ReadChannel implements FAST {
 	 * @see #executeCommand(int)
 	 * @see Command
 	 */
-	public ReadChannel next() throws IOException {
+	public ReadChannel next() {
 		executeCommand( readCommand() );
 		return this;
 	}
@@ -215,8 +289,12 @@ public class ReadChannel implements FAST {
 	 *             if a communications error occurs.
 	 * @see Command
 	 */
-	private int readCommand() throws IOException {
-		return input.read();
+	private int readCommand() {
+		try {
+			return input.read();
+		} catch( IOException exception ) {
+			throw new FASTReadException( exception );
+		}
 	}
 
 	/**

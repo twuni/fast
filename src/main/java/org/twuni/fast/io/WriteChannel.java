@@ -5,6 +5,7 @@ import java.io.OutputStream;
 
 import org.twuni.fast.EventHandler;
 import org.twuni.fast.FAST;
+import org.twuni.fast.exception.FASTWriteException;
 import org.twuni.fast.model.Command;
 import org.twuni.fast.model.Packet;
 import org.twuni.fast.util.IOUtils;
@@ -49,13 +50,19 @@ public class WriteChannel implements FAST {
 	 * @param address
 	 *            the address on which the remote endpoint is expected to be
 	 *            listening.
-	 * @throws IOException
+	 * @return this object, for method chaining.
+	 * @throws FASTWriteException
 	 *             if a communications error occurs.
 	 */
-	public void attach( byte [] address ) throws IOException {
-		output.write( Command.ATTACH );
-		IOUtils.writeSmallBuffer( output, address );
-		output.flush();
+	public WriteChannel attach( byte [] address ) {
+		try {
+			output.write( Command.ATTACH );
+			IOUtils.writeSmallBuffer( output, address );
+			output.flush();
+		} catch( IOException exception ) {
+			throw new FASTWriteException( exception );
+		}
+		return this;
 	}
 
 	/**
@@ -64,12 +71,13 @@ public class WriteChannel implements FAST {
 	 * @param address
 	 *            the address on which the remote endpoint is expected to be
 	 *            listening.
-	 * @throws IOException
+	 * @return this object, for method chaining.
+	 * @throws FASTWriteException
 	 *             if a communications error occurs.
 	 * @see #attach(byte[])
 	 */
-	public void attach( String address ) throws IOException {
-		attach( address.getBytes() );
+	public WriteChannel attach( String address ) {
+		return attach( address.getBytes() );
 	}
 
 	/**
@@ -78,13 +86,19 @@ public class WriteChannel implements FAST {
 	 * @param credential
 	 *            the credential to submit to the remote endpoint for
 	 *            authentication.
-	 * @throws IOException
+	 * @return this object, for method chaining.
+	 * @throws FASTWriteException
 	 *             if a communications error occurs.
 	 */
-	public void authenticate( byte [] credential ) throws IOException {
-		output.write( Command.AUTHENTICATE );
-		IOUtils.writeSmallBuffer( output, credential );
-		output.flush();
+	public WriteChannel authenticate( byte [] credential ) {
+		try {
+			output.write( Command.AUTHENTICATE );
+			IOUtils.writeSmallBuffer( output, credential );
+			output.flush();
+		} catch( IOException exception ) {
+			throw new FASTWriteException( exception );
+		}
+		return this;
 	}
 
 	/**
@@ -93,31 +107,40 @@ public class WriteChannel implements FAST {
 	 * @param credential
 	 *            the credential to submit to the remote endpoint for
 	 *            authentication.
-	 * @throws IOException
+	 * @return this object, for method chaining.
+	 * @throws FASTWriteException
 	 *             if a communications error occurs.
 	 * @see #authenticate(byte[])
 	 */
-	public void authenticate( String credential ) throws IOException {
-		authenticate( credential.getBytes() );
+	public WriteChannel authenticate( String credential ) {
+		return authenticate( credential.getBytes() );
 	}
 
 	/**
 	 * Identifies the output stream as a FAST channel by sending a FAST protocol
 	 * header.
 	 *
-	 * @throws IOException
+	 * @return this object, for method chaining.
+	 * @throws FASTWriteException
 	 *             if a communications error occurs.
 	 * @see FAST#FAST_HEADER
 	 */
-	public void connect() throws IOException {
-		output.write( FAST_HEADER );
-		output.flush();
+	public WriteChannel connect() {
+		try {
+			output.write( FAST_HEADER );
+			output.flush();
+		} catch( IOException exception ) {
+			throw new FASTWriteException( exception );
+		}
+		return this;
 	}
 
 	/**
 	 * Explicitly detaches the session, if any.
+	 *
+	 * @return this object, for method chaining.
 	 */
-	public void detach() {
+	public WriteChannel detach() {
 		try {
 			output.write( Command.DETACH );
 			output.flush();
@@ -125,18 +148,25 @@ public class WriteChannel implements FAST {
 		} catch( IOException ignore ) {
 			// Ignore.
 		}
+		return this;
 	}
 
 	/**
 	 * Requests that the remote endpoint immediately deliver any pending
 	 * messages queued for delivery to the local endpoint.
 	 *
-	 * @throws IOException
+	 * @return this object, for method chaining.
+	 * @throws FASTWriteException
 	 *             if a communications error occurs.
 	 */
-	public void fetch() throws IOException {
-		output.write( Command.FETCH );
-		output.flush();
+	public WriteChannel fetch() {
+		try {
+			output.write( Command.FETCH );
+			output.flush();
+		} catch( IOException exception ) {
+			throw new FASTWriteException( exception );
+		}
+		return this;
 	}
 
 	/**
@@ -145,13 +175,19 @@ public class WriteChannel implements FAST {
 	 *
 	 * @param address
 	 *            the address to be assigned to the remote endpoint.
-	 * @throws IOException
+	 * @return this object, for method chaining.
+	 * @throws FASTWriteException
 	 *             if a communications error occurs.
 	 */
-	public void identify( byte [] address ) throws IOException {
-		output.write( Command.IDENTIFY );
-		IOUtils.writeSmallBuffer( output, address );
-		output.flush();
+	public WriteChannel identify( byte [] address ) {
+		try {
+			output.write( Command.IDENTIFY );
+			IOUtils.writeSmallBuffer( output, address );
+			output.flush();
+		} catch( IOException exception ) {
+			throw new FASTWriteException( exception );
+		}
+		return this;
 	}
 
 	/**
@@ -160,24 +196,31 @@ public class WriteChannel implements FAST {
 	 *
 	 * @param address
 	 *            the address to be assigned to the remote endpoint.
-	 * @throws IOException
+	 * @return this object, for method chaining.
+	 * @throws FASTWriteException
 	 *             if a communications error occurs.
 	 * @see #identify(byte[])
 	 */
-	public void identify( String address ) throws IOException {
-		identify( address.getBytes() );
+	public WriteChannel identify( String address ) {
+		return identify( address.getBytes() );
 	}
 
 	/**
 	 * Requests an acknowledgment of the number of packets received by the
 	 * remote endpoint during this session.
 	 *
-	 * @throws IOException
+	 * @return this object, for method chaining.
+	 * @throws FASTWriteException
 	 *             if a communications error occurs.
 	 */
-	public void requestAcknowledgment() throws IOException {
-		output.write( Command.REQUEST_ACKNOWLEDGMENT );
-		output.flush();
+	public WriteChannel requestAcknowledgment() {
+		try {
+			output.write( Command.REQUEST_ACKNOWLEDGMENT );
+			output.flush();
+		} catch( IOException exception ) {
+			throw new FASTWriteException( exception );
+		}
+		return this;
 	}
 
 	/**
@@ -187,17 +230,23 @@ public class WriteChannel implements FAST {
 	 *
 	 * @param packets
 	 *            the packets to be sent.
-	 * @throws IOException
+	 * @return this object, for method chaining.
+	 * @throws FASTWriteException
 	 *             if a communications error occurs.
 	 */
-	public void send( Packet... packets ) throws IOException {
-		output.write( Command.SEND );
-		output.write( packets.length );
-		for( Packet packet : packets ) {
-			PacketSerializer.write( packet, output );
-			eventHandler.onPacketSent( packet );
+	public WriteChannel send( Packet... packets ) {
+		try {
+			output.write( Command.SEND );
+			output.write( packets.length );
+			for( Packet packet : packets ) {
+				PacketSerializer.write( packet, output );
+				eventHandler.onPacketSent( packet );
+			}
+			output.flush();
+		} catch( IOException exception ) {
+			throw new FASTWriteException( exception );
 		}
-		output.flush();
+		return this;
 	}
 
 	/**
@@ -206,13 +255,19 @@ public class WriteChannel implements FAST {
 	 *
 	 * @param n
 	 *            the number of packets received during this session.
-	 * @throws IOException
+	 * @return this object, for method chaining.
+	 * @throws FASTWriteException
 	 *             if a communications error occurs.
 	 */
-	public void sendAcknowledgment( int n ) throws IOException {
-		output.write( Command.ACKNOWLEDGE );
-		IOUtils.writeInt( output, n );
-		output.flush();
+	public WriteChannel sendAcknowledgment( int n ) {
+		try {
+			output.write( Command.ACKNOWLEDGE );
+			IOUtils.writeInt( output, n );
+			output.flush();
+		} catch( IOException exception ) {
+			throw new FASTWriteException( exception );
+		}
+		return this;
 	}
 
 	/**
@@ -221,13 +276,19 @@ public class WriteChannel implements FAST {
 	 *
 	 * @param sessionID
 	 *            the session ID to be assigned to the remote endpoint.
-	 * @throws IOException
+	 * @return this object, for method chaining.
+	 * @throws FASTWriteException
 	 *             if a communications error occurs.
 	 */
-	public void session( byte [] sessionID ) throws IOException {
-		output.write( Command.SESSION );
-		IOUtils.writeSmallBuffer( output, sessionID );
-		output.flush();
+	public WriteChannel session( byte [] sessionID ) {
+		try {
+			output.write( Command.SESSION );
+			IOUtils.writeSmallBuffer( output, sessionID );
+			output.flush();
+		} catch( IOException exception ) {
+			throw new FASTWriteException( exception );
+		}
+		return this;
 	}
 
 	/**
@@ -236,12 +297,13 @@ public class WriteChannel implements FAST {
 	 *
 	 * @param sessionID
 	 *            the session ID to be assigned to the remote endpoint.
-	 * @throws IOException
+	 * @return this object, for method chaining.
+	 * @throws FASTWriteException
 	 *             if a communications error occurs.
 	 * @see #session(byte[])
 	 */
-	public void session( String sessionID ) throws IOException {
-		session( sessionID.getBytes() );
+	public WriteChannel session( String sessionID ) {
+		return session( sessionID.getBytes() );
 	}
 
 	/**

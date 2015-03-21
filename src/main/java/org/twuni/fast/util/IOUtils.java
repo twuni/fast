@@ -4,10 +4,44 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.util.Arrays;
 
 import org.twuni.fast.FAST;
 
 public class IOUtils implements FAST {
+
+	public static byte [] burn( byte [] array ) {
+		Arrays.fill( array, (byte) 0 );
+		return array;
+	}
+
+	public static ByteBuffer burn( ByteBuffer buffer ) {
+		buffer.flip();
+		int length = buffer.limit();
+		byte zero = 0;
+		for( int i = 0; i < length; i++ ) {
+			buffer.put( i, zero );
+		}
+		return buffer;
+	}
+
+	public static char [] burn( char [] array ) {
+		Arrays.fill( array, (char) 0 );
+		return array;
+	}
+
+	public static CharBuffer burn( CharBuffer buffer ) {
+		buffer.flip();
+		int length = buffer.limit();
+		char zero = 0;
+		for( int i = 0; i < length; i++ ) {
+			buffer.put( i, zero );
+		}
+		return buffer;
+	}
 
 	public static int pipe( InputStream input, OutputStream output ) throws IOException {
 		return pipe( input, output, DEFAULT_BUFFER_SIZE );
@@ -81,6 +115,24 @@ public class IOUtils implements FAST {
 		return buffer;
 	}
 
+	public static byte [] toByteArray( ByteBuffer buffer ) {
+		byte [] array = new byte [buffer.limit()];
+		buffer.get( array );
+		return array;
+	}
+
+	public static byte [] toByteArray( CharBuffer buffer ) {
+		ByteBuffer bb = UTF8.encode( buffer );
+		byte [] array = toByteArray( bb );
+		burn( bb );
+		return array;
+	}
+
+	public static byte [] toByteArray( CharSequence string ) {
+		CharBuffer cb = CharBuffer.wrap( string );
+		return toByteArray( cb );
+	}
+
 	public static byte [] toByteArray( int n ) {
 		return new byte [] { (byte) ( 0xFF & n >> 24 ), (byte) ( 0xFF & n >> 16 ), (byte) ( 0xFF & n >> 8 ), (byte) ( 0xFF & n >> 0 ) };
 	}
@@ -90,22 +142,30 @@ public class IOUtils implements FAST {
 	}
 
 	public static int toInt( byte [] buffer ) {
-		int a = 0xFF000000 & buffer[0] << 24;
-		int b = 0x00FF0000 & buffer[1] << 16;
-		int c = 0x0000FF00 & buffer[2] << 8;
-		int d = 0x000000FF & buffer[3] << 0;
+		return toInt( buffer, 0 );
+	}
+
+	public static int toInt( byte [] buffer, int offset ) {
+		int a = 0xFF000000 & buffer[offset + 0] << 24;
+		int b = 0x00FF0000 & buffer[offset + 1] << 16;
+		int c = 0x0000FF00 & buffer[offset + 2] << 8;
+		int d = 0x000000FF & buffer[offset + 3] << 0;
 		return a | b | c | d;
 	}
 
 	public static long toLong( byte [] buffer ) {
-		long a = 0xFF00000000000000L & (long) buffer[0] << 56;
-		long b = 0x00FF000000000000L & (long) buffer[1] << 48;
-		long c = 0x0000FF0000000000L & (long) buffer[2] << 40;
-		long d = 0x000000FF00000000L & (long) buffer[3] << 32;
-		long e = 0x00000000FF000000L & (long) buffer[4] << 24;
-		long f = 0x0000000000FF0000L & (long) buffer[5] << 16;
-		long g = 0x000000000000FF00L & (long) buffer[6] << 8;
-		long h = 0x00000000000000FFL & (long) buffer[7] << 0;
+		return toLong( buffer, 0 );
+	}
+
+	public static long toLong( byte [] buffer, int offset ) {
+		long a = 0xFF00000000000000L & (long) buffer[offset + 0] << 56;
+		long b = 0x00FF000000000000L & (long) buffer[offset + 1] << 48;
+		long c = 0x0000FF0000000000L & (long) buffer[offset + 2] << 40;
+		long d = 0x000000FF00000000L & (long) buffer[offset + 3] << 32;
+		long e = 0x00000000FF000000L & (long) buffer[offset + 4] << 24;
+		long f = 0x0000000000FF0000L & (long) buffer[offset + 5] << 16;
+		long g = 0x000000000000FF00L & (long) buffer[offset + 6] << 8;
+		long h = 0x00000000000000FFL & (long) buffer[offset + 7] << 0;
 		return a | b | c | d | e | f | g | h;
 	}
 
@@ -146,6 +206,8 @@ public class IOUtils implements FAST {
 	public static void writeSmallBuffer( OutputStream out, String value ) throws IOException {
 		writeSmallBuffer( out, value.getBytes() );
 	}
+
+	private static final Charset UTF8 = Charset.forName( "UTF-8" );
 
 	private static final int DEFAULT_BUFFER_SIZE = 1 * 1024;
 

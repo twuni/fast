@@ -1,5 +1,6 @@
 package org.twuni.fast;
 
+import org.twuni.fast.exception.FASTException;
 import org.twuni.fast.model.Packet;
 
 /**
@@ -16,43 +17,67 @@ public class EventHandlers extends EventHandlerBase {
 
 	@Override
 	public void onAcknowledgmentReceived( int n ) {
-		for( EventHandler eventHandler : eventHandlers ) {
-			eventHandler.onAcknowledgmentReceived( n );
+		try {
+			for( EventHandler eventHandler : eventHandlers ) {
+				eventHandler.onAcknowledgmentReceived( n );
+			}
+		} catch( FASTException exception ) {
+			onException( exception );
 		}
 	}
 
 	@Override
 	public void onAcknowledgmentRequested() {
-		for( EventHandler eventHandler : eventHandlers ) {
-			eventHandler.onAcknowledgmentRequested();
+		try {
+			for( EventHandler eventHandler : eventHandlers ) {
+				eventHandler.onAcknowledgmentRequested();
+			}
+		} catch( FASTException exception ) {
+			onException( exception );
 		}
 	}
 
 	@Override
 	public void onAttachRequested( byte [] address ) {
-		for( EventHandler eventHandler : eventHandlers ) {
-			eventHandler.onAttachRequested( address );
+		try {
+			for( EventHandler eventHandler : eventHandlers ) {
+				eventHandler.onAttachRequested( address );
+			}
+		} catch( FASTException exception ) {
+			onException( exception );
 		}
 	}
 
 	@Override
 	public void onConnected() {
-		for( EventHandler eventHandler : eventHandlers ) {
-			eventHandler.onConnected();
+		try {
+			for( EventHandler eventHandler : eventHandlers ) {
+				eventHandler.onConnected();
+			}
+		} catch( FASTException exception ) {
+			onException( exception );
 		}
 	}
 
 	@Override
 	public void onCredentialReceived( byte [] credential ) {
-		for( EventHandler eventHandler : eventHandlers ) {
-			eventHandler.onCredentialReceived( credential );
+		try {
+			for( EventHandler eventHandler : eventHandlers ) {
+				eventHandler.onCredentialReceived( credential );
+			}
+		} catch( FASTException exception ) {
+			onException( exception );
 		}
 	}
 
 	@Override
 	public void onDisconnected() {
-		for( EventHandler eventHandler : eventHandlers ) {
-			eventHandler.onDisconnected();
+		try {
+			for( EventHandler eventHandler : eventHandlers ) {
+				eventHandler.onDisconnected();
+			}
+		} catch( FASTException exception ) {
+			onException( exception );
 		}
 	}
 
@@ -65,36 +90,56 @@ public class EventHandlers extends EventHandlerBase {
 
 	@Override
 	public void onFetchRequested() {
-		for( EventHandler eventHandler : eventHandlers ) {
-			eventHandler.onFetchRequested();
+		try {
+			for( EventHandler eventHandler : eventHandlers ) {
+				eventHandler.onFetchRequested();
+			}
+		} catch( FASTException exception ) {
+			onException( exception );
 		}
 	}
 
 	@Override
 	public void onIdentityReceived( byte [] identity ) {
-		for( EventHandler eventHandler : eventHandlers ) {
-			eventHandler.onIdentityReceived( identity );
+		try {
+			for( EventHandler eventHandler : eventHandlers ) {
+				eventHandler.onIdentityReceived( identity );
+			}
+		} catch( FASTException exception ) {
+			onException( exception );
 		}
 	}
 
 	@Override
 	public void onPacketReceived( Packet packet ) {
-		for( EventHandler eventHandler : eventHandlers ) {
-			eventHandler.onPacketReceived( packet );
+		try {
+			for( EventHandler eventHandler : eventHandlers ) {
+				eventHandler.onPacketReceived( packet );
+			}
+		} catch( FASTException exception ) {
+			onException( exception );
 		}
 	}
 
 	@Override
 	public void onPacketSent( Packet packet ) {
-		for( EventHandler eventHandler : eventHandlers ) {
-			eventHandler.onPacketSent( packet );
+		try {
+			for( EventHandler eventHandler : eventHandlers ) {
+				eventHandler.onPacketSent( packet );
+			}
+		} catch( FASTException exception ) {
+			onException( exception );
 		}
 	}
 
 	@Override
 	public void onSessionCreated( byte [] sessionID ) {
-		for( EventHandler eventHandler : eventHandlers ) {
-			eventHandler.onSessionCreated( sessionID );
+		try {
+			for( EventHandler eventHandler : eventHandlers ) {
+				eventHandler.onSessionCreated( sessionID );
+			}
+		} catch( FASTException exception ) {
+			onException( exception );
 		}
 	}
 

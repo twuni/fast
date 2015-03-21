@@ -2,6 +2,9 @@ package org.twuni.fast;
 
 import org.twuni.fast.model.Packet;
 
+/**
+ * A packet listener is notified whenever a packet is sent or received.
+ */
 public interface PacketListener extends FAST {
 
 	/**

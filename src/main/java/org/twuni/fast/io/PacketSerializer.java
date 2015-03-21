@@ -25,10 +25,14 @@ public class PacketSerializer implements FAST {
 	 *             given {@code input} stream.
 	 */
 	public static Packet read( InputStream input ) throws IOException {
+
 		long timestamp = IOUtils.readLong( input );
-		byte [] address = IOUtils.readSmallBuffer( input );
+		byte [] from = IOUtils.readSmallBuffer( input );
+		byte [] to = IOUtils.readSmallBuffer( input );
 		LimitedInputStream payload = LimitedInputStreamSerializer.read( input );
-		return new Packet( timestamp, address, payload );
+
+		return new Packet( timestamp, from, to, payload );
+
 	}
 
 	/**
@@ -44,7 +48,8 @@ public class PacketSerializer implements FAST {
 	 */
 	public static void write( Packet packet, OutputStream output ) throws IOException {
 		IOUtils.writeLong( output, packet.getTimestamp() );
-		IOUtils.writeSmallBuffer( output, packet.getAddress() );
+		IOUtils.writeSmallBuffer( output, packet.getFrom() );
+		IOUtils.writeSmallBuffer( output, packet.getTo() );
 		LimitedInputStreamSerializer.write( packet.getPayload(), output );
 	}
 

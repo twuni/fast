@@ -72,8 +72,6 @@ public class ReadChannel implements FAST {
 	 * triggers a disconnection.
 	 *
 	 * @return this object, for chaining commands together.
-	 * @throws IOException
-	 *             if a communications error occurs.
 	 * @see EventHandler#onConnected()
 	 * @see #disconnect()
 	 */
@@ -94,8 +92,7 @@ public class ReadChannel implements FAST {
 	/**
 	 * Explicitly disconnects from the remote endpoint.
 	 *
-	 * @throws IOException
-	 *             if a communications error occurs.
+	 * @return this object, for chaining commands together.
 	 */
 	public ReadChannel disconnect() {
 		try {
@@ -228,8 +225,6 @@ public class ReadChannel implements FAST {
 	 * either the thread is interrupted or an exception occurs.
 	 *
 	 * @return this object, for chaining commands together.
-	 * @throws IOException
-	 *             if/when a communications error occurs.
 	 * @see #next()
 	 */
 	public ReadChannel loop() {
@@ -270,8 +265,6 @@ public class ReadChannel implements FAST {
 	 * Reads and executes the next command in the stream.
 	 *
 	 * @return this object, for chaining commands together.
-	 * @throws IOException
-	 *             if a communications error occurs.
 	 * @see #readCommand()
 	 * @see #executeCommand(int)
 	 * @see Command

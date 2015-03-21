@@ -12,10 +12,9 @@ import org.twuni.fast.model.Packet;
 import org.twuni.fast.util.IOUtils;
 
 /**
- * This helper object can be integrated with an {@link EventHandler} and a
- * {@link WriteChannel} to manage packet delivery reliability within a session.
+ * This helper object manages packet delivery reliability within a session.
  */
-public class Reliability implements FAST {
+public class Reliability extends EventHandlerBase implements Stateful {
 
 	private static final int SERIAL_VERSION = 1;
 
@@ -24,15 +23,32 @@ public class Reliability implements FAST {
 	private final List<Packet> unacknowledgedPackets = new ArrayList<Packet>();
 	private final WriteChannel channel;
 
+	/**
+	 * Convenience constructor for {@link #Reliability(WriteChannel)} using the
+	 * given {@code session}'s write channel.
+	 *
+	 * @param session
+	 *            the session whose write channel will be used to send commands
+	 *            when necessary.
+	 * @see #Reliability(WriteChannel)
+	 */
 	public Reliability( Session session ) {
 		this( session.write() );
 	}
 
+	/**
+	 * Initializes a new Reliability handler which writes to the given
+	 * {@code channel}.
+	 *
+	 * @param channel
+	 *            the channel to which this handler will write commands when
+	 *            necessary.
+	 */
 	public Reliability( WriteChannel channel ) {
 		this.channel = channel;
 	}
 
-	public void flush() {
+	private synchronized void flush() {
 		int unacknowledgedPacketsCount = unacknowledgedPackets.size();
 		Packet [] unacknowledgedPacketsArray = new Packet [unacknowledgedPacketsCount];
 		unacknowledgedPackets.toArray( unacknowledgedPacketsArray );
@@ -46,18 +62,7 @@ public class Reliability implements FAST {
 		}
 	}
 
-	public int getReceivedPacketCount() {
-		return receivedPacketCount;
-	}
-
-	public int getSentPacketCount() {
-		return sentPacketCount;
-	}
-
-	public List<Packet> getUnacknowledgedPackets() {
-		return unacknowledgedPackets;
-	}
-
+	@Override
 	public void onAcknowledgmentReceived( int n ) {
 		if( n == sentPacketCount ) {
 			unacknowledgedPackets.clear();
@@ -66,6 +71,7 @@ public class Reliability implements FAST {
 		flush();
 	}
 
+	@Override
 	public void onAcknowledgmentRequested() {
 		try {
 			channel.sendAcknowledgment( receivedPacketCount );
@@ -74,32 +80,34 @@ public class Reliability implements FAST {
 		}
 	}
 
-	protected void onException( Throwable exception ) {
-		exception.printStackTrace();
-	}
-
-	public int onPacketReceived() {
+	@Override
+	public void onPacketReceived( Packet packet ) {
 		receivedPacketCount++;
-		return receivedPacketCount;
 	}
 
-	public int onPacketSent( Packet packet ) {
+	@Override
+	public void onPacketSent( Packet packet ) {
 		try {
 			unacknowledgedPackets.add( packet );
 			sentPacketCount++;
 		} catch( Throwable exception ) {
 			onException( exception );
 		}
-		return sentPacketCount;
 	}
 
-	public void reset() {
+	@Override
+	public void onSessionCreated( byte [] sessionID ) {
+		reset();
+	}
+
+	private synchronized void reset() {
 		receivedPacketCount = 0;
 		sentPacketCount = 0;
 		unacknowledgedPackets.clear();
 	}
 
-	public void restoreState( InputStream input ) throws IOException {
+	@Override
+	public synchronized void restoreState( InputStream input ) throws IOException {
 		int version = IOUtils.readInt( input );
 		switch( version ) {
 			case 1:
@@ -115,7 +123,8 @@ public class Reliability implements FAST {
 		}
 	}
 
-	public void saveState( OutputStream output ) throws IOException {
+	@Override
+	public synchronized void saveState( OutputStream output ) throws IOException {
 		IOUtils.writeInt( output, SERIAL_VERSION );
 		IOUtils.writeInt( output, receivedPacketCount );
 		IOUtils.writeInt( output, sentPacketCount );

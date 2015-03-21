@@ -18,6 +18,8 @@ public class WriteChannel implements FAST {
 
 	private final OutputStream output;
 	private EventHandler eventHandler;
+	private byte [] sessionID;
+	private byte [] remoteAddress;
 
 	/**
 	 * Initializes this reader to write to the given {@code output} stream,
@@ -55,6 +57,7 @@ public class WriteChannel implements FAST {
 	 *             if a communications error occurs.
 	 */
 	public WriteChannel attach( byte [] address ) {
+		remoteAddress = address;
 		try {
 			output.write( Command.ATTACH );
 			IOUtils.writeSmallBuffer( output, address );
@@ -169,6 +172,14 @@ public class WriteChannel implements FAST {
 		return this;
 	}
 
+	public byte [] getRemoteAddress() {
+		return remoteAddress;
+	}
+
+	public byte [] getSessionID() {
+		return sessionID;
+	}
+
 	/**
 	 * Accepts an authentication request, assigning the given {@code address} to
 	 * the remote endpoint.
@@ -180,6 +191,7 @@ public class WriteChannel implements FAST {
 	 *             if a communications error occurs.
 	 */
 	public WriteChannel identify( byte [] address ) {
+		remoteAddress = address;
 		try {
 			output.write( Command.IDENTIFY );
 			IOUtils.writeSmallBuffer( output, address );
@@ -281,6 +293,7 @@ public class WriteChannel implements FAST {
 	 *             if a communications error occurs.
 	 */
 	public WriteChannel session( byte [] sessionID ) {
+		this.sessionID = sessionID;
 		try {
 			output.write( Command.SESSION );
 			IOUtils.writeSmallBuffer( output, sessionID );

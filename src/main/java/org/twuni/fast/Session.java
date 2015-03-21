@@ -44,7 +44,7 @@ public class Session implements FAST {
 		reader = new ReadChannel( input, eventHandler );
 		writer = new WriteChannel( output, eventHandler );
 		if( eventHandler == null ) {
-			setEventHandler( new ReliableEventHandler( writer ) );
+			setEventHandler( new Reliability( writer ) );
 		}
 	}
 

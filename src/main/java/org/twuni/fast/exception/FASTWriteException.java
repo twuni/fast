@@ -1,5 +1,9 @@
 package org.twuni.fast.exception;
 
+/**
+ * This exception indicates that something has gone wrong while writing a FAST
+ * command.
+ */
 public class FASTWriteException extends FASTException {
 
 	private static final long serialVersionUID = 1L;

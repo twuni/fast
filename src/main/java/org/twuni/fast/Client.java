@@ -174,7 +174,6 @@ public class Client {
 
 	private final WriteChannel w;
 	private final ReadChannel r;
-	private final ClientEventHandler e;
 
 	/**
 	 * Initializes a client to connect to the given {@code host} and
@@ -204,7 +203,7 @@ public class Client {
 	protected Client( boolean secure, String host, int port, byte [] credential, PacketListener packetListener ) throws UnknownHostException, IOException {
 		Socket socket = secure ? SSLSocketFactory.getDefault().createSocket( host, port ) : SocketFactory.getDefault().createSocket( host, port );
 		w = new WriteChannel( socket.getOutputStream() );
-		e = new ClientEventHandler( w, credential, packetListener );
+		EventHandler e = new ClientEventHandler( w, credential, packetListener );
 		r = new ReadChannel( socket.getInputStream(), e );
 		w.setEventHandler( e );
 		r.loopInBackground();
@@ -227,7 +226,7 @@ public class Client {
 	 *         authentication.
 	 */
 	public byte [] getIdentity() {
-		return e.getIdentity();
+		return w.getLocalAddress();
 	}
 
 	/**
@@ -238,7 +237,7 @@ public class Client {
 	 *         attaching.
 	 */
 	public byte [] getSessionID() {
-		return e.getSessionID();
+		return w.getSessionID();
 	}
 
 	/**

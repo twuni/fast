@@ -313,7 +313,7 @@ public class WriteChannel implements FAST {
 	 *             if a communications error occurs.
 	 */
 	public WriteChannel session( byte [] sessionID ) {
-		this.sessionID = sessionID;
+		setSessionID( sessionID );
 		try {
 			output.write( Command.SESSION );
 			IOUtils.writeSmallBuffer( output, sessionID );
@@ -359,6 +359,17 @@ public class WriteChannel implements FAST {
 	 */
 	public void setLocalAddress( byte [] localAddress ) {
 		this.localAddress = localAddress;
+	}
+
+	/**
+	 * Sets the identity for the session associated with this channel.
+	 *
+	 * @param sessionID
+	 *            the identity for the session to be associated with this
+	 *            channel.
+	 */
+	public void setSessionID( byte [] sessionID ) {
+		this.sessionID = sessionID;
 	}
 
 }

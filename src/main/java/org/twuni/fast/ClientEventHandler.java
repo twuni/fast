@@ -7,8 +7,7 @@ import org.twuni.fast.io.WriteChannel;
  */
 public class ClientEventHandler extends EventHandlers {
 
-	private byte [] identity;
-	private byte [] sessionID;
+	private WriteChannel channel;
 
 	/**
 	 * Initializes this event handler to use the given {@code credential} for
@@ -25,40 +24,19 @@ public class ClientEventHandler extends EventHandlers {
 	 */
 	public ClientEventHandler( WriteChannel channel, byte [] credential, PacketListener packetListener ) {
 		super( new DetachOnException( channel ), new Reliability( channel ), new PacketListenerWrapper( packetListener ), new CredentialProvider( credential, channel ), new Fetcher( channel ) );
-	}
-
-	/**
-	 * Returns the identity assigned to this node by the remote node after
-	 * authentication.
-	 *
-	 * @return the identity assigned to this node by the remote node after
-	 *         authentication.
-	 */
-	public byte [] getIdentity() {
-		return identity;
-	}
-
-	/**
-	 * Returns the identifier assigned to this session by the remote node after
-	 * attachment.
-	 *
-	 * @return the identifier assigned to this session by the remote node after
-	 *         attachment.
-	 */
-	public byte [] getSessionID() {
-		return sessionID;
+		this.channel = channel;
 	}
 
 	@Override
 	public void onIdentityReceived( byte [] identity ) {
-		this.identity = identity;
 		super.onIdentityReceived( identity );
+		channel.setLocalAddress( identity );
 	}
 
 	@Override
 	public void onSessionCreated( byte [] sessionID ) {
-		this.sessionID = sessionID;
 		super.onSessionCreated( sessionID );
+		channel.setSessionID( sessionID );
 	}
 
 }

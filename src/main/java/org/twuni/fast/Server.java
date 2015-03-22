@@ -242,9 +242,14 @@ public class Server {
 		b.logger( System.out );
 
 		int port = 4857;
-		boolean secure = true;
+		boolean secure = false;
 
 		for( int i = 0; i < args.length; i++ ) {
+
+			if( "-?".equals( args[i] ) ) {
+				printUsage();
+				return;
+			}
 
 			if( "-p".equals( args[i] ) ) {
 				i++;
@@ -277,6 +282,15 @@ public class Server {
 			s.stopListening();
 		}
 
+	}
+
+	private static void printUsage() {
+		System.out.println( "Usage: fast-server OPTIONS" );
+		System.out.println( "OPTIONS:" );
+		System.out.println( "    -?         Print this help message." );
+		System.out.println( "    -p <port>  Default: 4857" );
+		System.out.println( "    -k         Listen on an insecure socket (default)." );
+		System.out.println( "    -s         Listen on a TLS socket." );
 	}
 
 	private final boolean secure;

@@ -26,8 +26,14 @@ public class ServerAuthenticator extends EventHandlerBase {
 	}
 
 	@Override
+	public void onAttachRequested( byte [] address ) {
+		super.onAttachRequested( address );
+		channel.setLocalAddress( address );
+	}
+
+	@Override
 	public void onCredentialReceived( byte [] credential ) {
-		byte [] address = authenticator.authenticate( credential );
+		byte [] address = authenticator.authenticate( channel.getLocalAddress(), credential );
 		channel.identify( address );
 	}
 

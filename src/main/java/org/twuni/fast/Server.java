@@ -283,7 +283,7 @@ public class Server {
 		this.packetListener = packetListener != null ? packetListener : new EventHandlerBase();
 		this.addressVerifier = addressVerifier != null ? addressVerifier : new AnyAddressFilter();
 		this.sessionFactory = sessionFactory != null ? sessionFactory : new AnonymousSessionFactory();
-		this.authenticator = authenticator != null ? authenticator : new AnonymousAuthenticator();
+		this.authenticator = authenticator != null ? authenticator : new AutomaticAuthenticator();
 		writeChannelProvider = new SimpleWriteChannelProvider();
 		if( packetProviderFactory == null || packetRouter == null ) {
 			InternalPacketTransport transport = new InternalPacketTransport( writeChannelProvider );

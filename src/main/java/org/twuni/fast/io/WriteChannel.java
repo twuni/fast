@@ -19,6 +19,7 @@ public class WriteChannel implements FAST {
 	private final OutputStream output;
 	private EventHandler eventHandler;
 	private byte [] sessionID;
+	private byte [] localAddress;
 	private byte [] remoteAddress;
 
 	/**
@@ -172,10 +173,29 @@ public class WriteChannel implements FAST {
 		return this;
 	}
 
+	/**
+	 * Returns the local address associated with this channel.
+	 *
+	 * @return the local address associated with this channel.
+	 */
+	public byte [] getLocalAddress() {
+		return localAddress;
+	}
+
+	/**
+	 * Returns the remote address associated with this channel.
+	 *
+	 * @return the remote address associated with this channel.
+	 */
 	public byte [] getRemoteAddress() {
 		return remoteAddress;
 	}
 
+	/**
+	 * Returns the identifier for the session associated with this channel.
+	 *
+	 * @return the identifier for the session associated with this channel.
+	 */
 	public byte [] getSessionID() {
 		return sessionID;
 	}
@@ -329,6 +349,16 @@ public class WriteChannel implements FAST {
 	 */
 	public void setEventHandler( EventHandler eventHandler ) {
 		this.eventHandler = eventHandler;
+	}
+
+	/**
+	 * Sets the local address associated with this channel.
+	 *
+	 * @param localAddress
+	 *            the local address to be associated with this channel.
+	 */
+	public void setLocalAddress( byte [] localAddress ) {
+		this.localAddress = localAddress;
 	}
 
 }

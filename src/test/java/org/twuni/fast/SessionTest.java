@@ -15,14 +15,7 @@ public class SessionTest {
 	}
 
 	private static Authenticator authenticator() {
-
-		SimpleAuthenticator authenticator = new SimpleAuthenticator();
-
-		authenticator.acceptCredential( "alice@localhost".getBytes(), "alice\np8ssw0rd".getBytes() );
-		authenticator.acceptCredential( "bob@localhost".getBytes(), "bob\np8ssw0rd".getBytes() );
-
-		return authenticator;
-
+		return new AutomaticAuthenticator();
 	}
 
 	private static Client bob() throws UnknownHostException, IOException {
@@ -34,7 +27,7 @@ public class SessionTest {
 	}
 
 	private static Client eve() throws UnknownHostException, IOException {
-		return client( "eve", "n85tyf@c3" );
+		return client( "alice", "n85tyf@c3" );
 	}
 
 	private static void relax( long ms ) {

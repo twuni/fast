@@ -28,6 +28,7 @@ public class Client {
 		private int port;
 		private boolean secure;
 		private PacketListener packetListener;
+		private ConnectionListener connectionListener;
 
 		/**
 		 * Initializes a new builder in its default state.
@@ -48,7 +49,21 @@ public class Client {
 		 *             if a network error occurs while initializing the client.
 		 */
 		public Client build() throws UnknownHostException, IOException {
-			return new Client( secure, host, port, credential, packetListener );
+			return new Client( secure, host, port, credential, connectionListener, packetListener );
+		}
+
+		/**
+		 * Notify the given {@code connectionListener} whenver the client has
+		 * connected or disconnected.
+		 *
+		 * @param connectionListener
+		 *            the listener to be notified of connection events on this
+		 *            client.
+		 * @return this object, for chaining commands.
+		 */
+		public Builder connectionListener( ConnectionListener connectionListener ) {
+			this.connectionListener = connectionListener;
+			return this;
 		}
 
 		/**
@@ -152,6 +167,7 @@ public class Client {
 			credential = null;
 			secure = true;
 			packetListener = null;
+			connectionListener = null;
 			return this;
 		}
 
@@ -192,6 +208,9 @@ public class Client {
 	 *            the port on the remote node to which this client will connect.
 	 * @param credential
 	 *            the credential to use for authentication to the remote node.
+	 * @param connectionListener
+	 *            the listener to be notified whenever this client has connected
+	 *            or disconnected.
 	 * @param packetListener
 	 *            the listener to be notified of sent and received packets.
 	 * @throws UnknownHostException
@@ -200,14 +219,14 @@ public class Client {
 	 * @throws IOException
 	 *             if a network error occurs.
 	 */
-	protected Client( boolean secure, String host, int port, byte [] credential, PacketListener packetListener ) throws UnknownHostException, IOException {
+	protected Client( boolean secure, String host, int port, byte [] credential, ConnectionListener connectionListener, PacketListener packetListener ) throws UnknownHostException, IOException {
 		Socket socket = secure ? SSLSocketFactory.getDefault().createSocket( host, port ) : SocketFactory.getDefault().createSocket( host, port );
 		w = new WriteChannel( socket.getOutputStream() );
-		EventHandler e = new ClientEventHandler( w, credential, packetListener );
+		EventHandler e = new ClientEventHandler( w, credential, connectionListener, packetListener );
 		r = new ReadChannel( socket.getInputStream(), e );
 		w.setEventHandler( e );
 		r.loopInBackground();
-		w.connect().attach( host );
+		w.connect().attach( host ).authenticate( credential ).fetch();
 	}
 
 	/**

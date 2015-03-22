@@ -19,18 +19,21 @@ public class ClientEventHandler extends EventHandlers {
 	 * @param credential
 	 *            the credential to provide to the remote endpoint when
 	 *            authentication is necessary.
+	 * @param connectionListener
+	 *            the listener to be notified whenever the client has connected
+	 *            or disconnected.
 	 * @param packetListener
 	 *            the listener to be notified of incoming and outgoing packets.
 	 */
-	public ClientEventHandler( WriteChannel channel, byte [] credential, PacketListener packetListener ) {
-		super( new DetachOnException( channel ), new Reliability( channel ), new PacketListenerWrapper( packetListener ), new CredentialProvider( credential, channel ), new Fetcher( channel ) );
+	public ClientEventHandler( WriteChannel channel, byte [] credential, ConnectionListener connectionListener, PacketListener packetListener ) {
+		super( new DetachOnException( channel ), new Reliability( channel ), new PacketListenerWrapper( packetListener ), new ConnectionListenerWrapper( connectionListener, channel ) );
 		this.channel = channel;
 	}
 
 	@Override
 	public void onIdentityReceived( byte [] identity ) {
-		super.onIdentityReceived( identity );
 		channel.setLocalAddress( identity );
+		super.onIdentityReceived( identity );
 	}
 
 	@Override

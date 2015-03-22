@@ -235,6 +235,50 @@ public class Server {
 
 	}
 
+	public static void main( String [] args ) {
+
+		Builder b = new Builder();
+
+		b.logger( System.out );
+
+		int port = 4857;
+		boolean secure = true;
+
+		for( int i = 0; i < args.length; i++ ) {
+
+			if( "-p".equals( args[i] ) ) {
+				i++;
+				port = Integer.parseInt( args[i] );
+				continue;
+			}
+
+			if( "-k".equals( args[i] ) ) {
+				secure = false;
+				continue;
+			}
+
+			if( "-s".equals( args[i] ) ) {
+				secure = true;
+				continue;
+			}
+
+		}
+
+		Server s = b.port( port ).secure( secure ).build();
+
+		System.out.println( String.format( "(listen :port %d :secure %b)", Integer.valueOf( port ), Boolean.valueOf( secure ) ) );
+		s.startListening();
+
+		try {
+			while( !Thread.interrupted() ) {
+				Thread.sleep( 0x7FFFFFFFFFFFFFFFL );
+			}
+		} catch( InterruptedException exception ) {
+			s.stopListening();
+		}
+
+	}
+
 	private final boolean secure;
 	private final int port;
 	private final PacketListener packetListener;

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.twuni.fast.exception.FASTWriteException;
 import org.twuni.fast.io.WriteChannel;
 import org.twuni.fast.model.Packet;
 
@@ -54,7 +55,11 @@ public class InternalPacketTransport implements PacketProviderFactory, PacketRou
 		}
 
 		for( WriteChannel channel : channels ) {
-			channel.send( packet );
+			try {
+				channel.send( packet );
+			} catch( FASTWriteException exception ) {
+				writeChannelProvider.detach( address, channel );
+			}
 		}
 
 	}

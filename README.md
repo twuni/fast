@@ -24,6 +24,12 @@ Federated Asynchronous Transport (FAST) is a spiritual successor to eXtensible M
 
  * Once a session has been assigned an address, packets can be routed to/from that session until it is destroyed or disconnected.
 
+## API Documentation
+
+[Javadocs][Javadoc] are available.
+
+ [Javadoc]: https://docs.twuni.org/repository/libs-snapshot/org/twuni/fast/1.0.0-SNAPSHOT/
+
 ## License
 
 Copyright 2014 Twuni

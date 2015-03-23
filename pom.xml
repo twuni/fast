@@ -14,7 +14,7 @@
 	<packaging>jar</packaging>
 
 	<name>Federated Asynchronous Transport (FAST)</name>
-	<url>https://fast.twuni.org</url>
+	<url>https://docs.twuni.org/repository/libs-snapshot/org/twuni/${project.artifactId}/${project.version}/</url>
 
 	<repositories>
 		<repository>

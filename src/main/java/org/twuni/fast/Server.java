@@ -282,7 +282,12 @@ public class Server {
 
 		Server s = b.port( port ).secure( secure ).build();
 
-		System.out.println( String.format( "(listen :realm %s :port %d :secure %b)", realm, Integer.valueOf( port ), Boolean.valueOf( secure ) ) );
+		if( realm != null ) {
+			System.out.println( String.format( "(listen :realm \"%s\" :port %d :secure %b)", new String( realm ), Integer.valueOf( port ), Boolean.valueOf( secure ) ) );
+		} else {
+			System.out.println( String.format( "(listen :port %d :secure %b)", Integer.valueOf( port ), Boolean.valueOf( secure ) ) );
+		}
+
 		s.startListening();
 
 		try {

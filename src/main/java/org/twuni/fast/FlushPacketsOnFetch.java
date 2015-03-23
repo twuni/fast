@@ -10,7 +10,7 @@ import org.twuni.fast.model.Packet;
 public class FlushPacketsOnFetch extends EventHandlerBase {
 
 	private final WriteChannel channel;
-	private final PacketProviderFactory packetProviderFactory;
+	private final MailboxFactory mailboxFactory;
 
 	/**
 	 * Initializes this handler to send packets along the given {@code channel},
@@ -18,19 +18,18 @@ public class FlushPacketsOnFetch extends EventHandlerBase {
 	 *
 	 * @param channel
 	 *            the channel along which to send fetched packets.
-	 * @param packetProviderFactory
-	 *            the factory responsible for creating a provider of packets to
-	 *            send.
+	 * @param mailboxFactory
+	 *            the factory responsible for creating mailboxes.
 	 */
-	public FlushPacketsOnFetch( WriteChannel channel, PacketProviderFactory packetProviderFactory ) {
+	public FlushPacketsOnFetch( WriteChannel channel, MailboxFactory mailboxFactory ) {
 		this.channel = channel;
-		this.packetProviderFactory = packetProviderFactory;
+		this.mailboxFactory = mailboxFactory;
 	}
 
 	@Override
 	public void onFetchRequested() {
-		PacketProvider packetProvider = packetProviderFactory.createPacketProvider( channel.getRemoteAddress() );
-		for( Packet packet = packetProvider.providePacket(); packet != null; packet = packetProvider.providePacket() ) {
+		Mailbox mailbox = mailboxFactory.createMailbox( channel.getRemoteAddress() );
+		for( Packet packet = mailbox.providePacket(); packet != null; packet = mailbox.providePacket() ) {
 			channel.send( packet );
 		}
 		channel.requestAcknowledgment();

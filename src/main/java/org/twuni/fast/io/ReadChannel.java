@@ -197,11 +197,8 @@ public class ReadChannel implements FAST {
 
 	private void executeSendCommand() {
 		try {
-			int packetCount = input.read();
-			for( int i = 0; i < packetCount; i++ ) {
-				Packet packet = PacketSerializer.read( input );
-				eventHandler.onPacketReceived( packet );
-			}
+			Packet packet = PacketSerializer.read( input );
+			eventHandler.onPacketReceived( packet );
 		} catch( IOException exception ) {
 			throw new FASTReadException( exception );
 		}

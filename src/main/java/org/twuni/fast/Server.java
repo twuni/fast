@@ -28,7 +28,7 @@ public class Server {
 		private AddressVerifier addressVerifier;
 		private SessionFactory sessionFactory;
 		private Authenticator authenticator;
-		private PacketProviderFactory packetProviderFactory;
+		private MailboxFactory mailboxFactory;
 		private PacketRouter packetRouter;
 		private PrintStream logger;
 
@@ -69,7 +69,7 @@ public class Server {
 		}
 
 		public Server build() {
-			return new Server( secure, port, packetListener, addressVerifier, sessionFactory, authenticator, packetProviderFactory, packetRouter, logger );
+			return new Server( secure, port, packetListener, addressVerifier, sessionFactory, authenticator, mailboxFactory, packetRouter, logger );
 		}
 
 		/**
@@ -85,6 +85,21 @@ public class Server {
 		}
 
 		/**
+		 * Configures the server to use the given {@code mailboxFactory} when
+		 * fetching new packets to deliver to a client node.
+		 *
+		 * @param mailboxFactory
+		 *            the factory to use to obtain a {@link Mailbox} to
+		 *            consult when fetching new packets to deliver to a client
+		 *            node.
+		 * @return this object, for chaining commands.
+		 */
+		public Builder mailboxFactory( MailboxFactory mailboxFactory ) {
+			this.mailboxFactory = mailboxFactory;
+			return this;
+		}
+
+		/**
 		 * Configures the server to notify the given {@code packetListener}
 		 * whenever packets are sent and received.
 		 *
@@ -95,21 +110,6 @@ public class Server {
 		 */
 		public Builder packetListener( PacketListener packetListener ) {
 			this.packetListener = packetListener;
-			return this;
-		}
-
-		/**
-		 * Configures the server to use the given {@code packetProviderFactory}
-		 * when fetching new packets to deliver to a client node.
-		 *
-		 * @param packetProviderFactory
-		 *            the factory to use to obtain a {@link PacketProvider} to
-		 *            consult when fetching new packets to deliver to a client
-		 *            node.
-		 * @return this object, for chaining commands.
-		 */
-		public Builder packetProviderFactory( PacketProviderFactory packetProviderFactory ) {
-			this.packetProviderFactory = packetProviderFactory;
 			return this;
 		}
 
@@ -151,7 +151,7 @@ public class Server {
 			sessionFactory = null;
 			authenticator = null;
 			logger = null;
-			packetProviderFactory = null;
+			mailboxFactory = null;
 			packetRouter = null;
 			return this;
 		}
@@ -194,19 +194,19 @@ public class Server {
 		private final AddressVerifier addressVerifier;
 		private final SessionFactory sessionFactory;
 		private final Authenticator authenticator;
-		private final PacketProviderFactory packetProviderFactory;
+		private final MailboxFactory mailboxFactory;
 		private final PacketRouter packetRouter;
 		private final WriteChannelProvider writeChannelProvider;
 		private final PrintStream logger;
 
-		public Looper( boolean secure, int port, PacketListener packetListener, AddressVerifier addressVerifier, SessionFactory sessionFactory, Authenticator authenticator, PacketProviderFactory packetProviderFactory, PacketRouter packetRouter, WriteChannelProvider writeChannelProvider, PrintStream logger ) {
+		public Looper( boolean secure, int port, PacketListener packetListener, AddressVerifier addressVerifier, SessionFactory sessionFactory, Authenticator authenticator, MailboxFactory mailboxFactory, PacketRouter packetRouter, WriteChannelProvider writeChannelProvider, PrintStream logger ) {
 			this.secure = secure;
 			this.port = port;
 			this.packetListener = packetListener;
 			this.addressVerifier = addressVerifier;
 			this.sessionFactory = sessionFactory;
 			this.authenticator = authenticator;
-			this.packetProviderFactory = packetProviderFactory;
+			this.mailboxFactory = mailboxFactory;
 			this.packetRouter = packetRouter;
 			this.writeChannelProvider = writeChannelProvider;
 			this.logger = logger;
@@ -220,7 +220,7 @@ public class Server {
 					while( !Thread.interrupted() ) {
 						Socket socket = server.accept();
 						WriteChannel w = new WriteChannel( socket.getOutputStream() );
-						EventHandler e = new ServerEventHandler( w, packetListener, addressVerifier, sessionFactory, authenticator, packetProviderFactory, packetRouter, writeChannelProvider, logger );
+						EventHandler e = new ServerEventHandler( w, packetListener, addressVerifier, sessionFactory, authenticator, mailboxFactory, packetRouter, writeChannelProvider, logger );
 						w.setEventHandler( e );
 						ReadChannel r = new ReadChannel( socket.getInputStream(), e );
 						r.accept().loopInBackground();
@@ -243,6 +243,7 @@ public class Server {
 
 		int port = 4857;
 		boolean secure = false;
+		byte [] realm = null;
 
 		for( int i = 0; i < args.length; i++ ) {
 
@@ -267,16 +268,26 @@ public class Server {
 				continue;
 			}
 
+			if( "-r".equals( args[i] ) ) {
+				i++;
+				realm = args[i].getBytes();
+				continue;
+			}
+
+		}
+
+		if( realm != null ) {
+			b.addressVerifier( new WhiteListAddressFilter( realm ) );
 		}
 
 		Server s = b.port( port ).secure( secure ).build();
 
-		System.out.println( String.format( "(listen :port %d :secure %b)", Integer.valueOf( port ), Boolean.valueOf( secure ) ) );
+		System.out.println( String.format( "(listen :realm %s :port %d :secure %b)", realm, Integer.valueOf( port ), Boolean.valueOf( secure ) ) );
 		s.startListening();
 
 		try {
 			while( !Thread.interrupted() ) {
-				Thread.sleep( 0x7FFFFFFFFFFFFFFFL );
+				Thread.sleep( Long.MAX_VALUE );
 			}
 		} catch( InterruptedException exception ) {
 			s.stopListening();
@@ -291,6 +302,7 @@ public class Server {
 		System.out.println( "    -p <port>  Default: 4857" );
 		System.out.println( "    -k         Listen on an insecure socket (default)." );
 		System.out.println( "    -s         Listen on a TLS socket." );
+		System.out.println( "    -r <realm> Listen on the given realm. Default: (any)" );
 	}
 
 	private final boolean secure;
@@ -299,7 +311,7 @@ public class Server {
 	private final AddressVerifier addressVerifier;
 	private final SessionFactory sessionFactory;
 	private final Authenticator authenticator;
-	private final PacketProviderFactory packetProviderFactory;
+	private final MailboxFactory mailboxFactory;
 	private final PacketRouter packetRouter;
 	private final PrintStream logger;
 	private final WriteChannelProvider writeChannelProvider;
@@ -326,8 +338,8 @@ public class Server {
 	 *            node.
 	 * @param authenticator
 	 *            the authenticator to use for authenticating client nodes.
-	 * @param packetProviderFactory
-	 *            the factory to use to obtain a {@link PacketProvider} to
+	 * @param mailboxFactory
+	 *            the factory to use to obtain a {@link Mailbox} to
 	 *            consult when fetching new packets to deliver to a client
 	 *            node.
 	 * @param packetRouter
@@ -335,7 +347,7 @@ public class Server {
 	 * @param logger
 	 *            the logger to which the server should record its logs.
 	 */
-	protected Server( boolean secure, int port, PacketListener packetListener, AddressVerifier addressVerifier, SessionFactory sessionFactory, Authenticator authenticator, PacketProviderFactory packetProviderFactory, PacketRouter packetRouter, PrintStream logger ) {
+	protected Server( boolean secure, int port, PacketListener packetListener, AddressVerifier addressVerifier, SessionFactory sessionFactory, Authenticator authenticator, MailboxFactory mailboxFactory, PacketRouter packetRouter, PrintStream logger ) {
 		this.secure = secure;
 		this.port = port;
 		this.packetListener = packetListener != null ? packetListener : new EventHandlerBase();
@@ -343,12 +355,12 @@ public class Server {
 		this.sessionFactory = sessionFactory != null ? sessionFactory : new AnonymousSessionFactory();
 		this.authenticator = authenticator != null ? authenticator : new AutomaticAuthenticator();
 		writeChannelProvider = new SimpleWriteChannelProvider();
-		if( packetProviderFactory == null || packetRouter == null ) {
+		if( mailboxFactory == null || packetRouter == null ) {
 			InternalPacketTransport transport = new InternalPacketTransport( writeChannelProvider );
-			this.packetProviderFactory = transport;
+			this.mailboxFactory = transport;
 			this.packetRouter = transport;
 		} else {
-			this.packetProviderFactory = packetProviderFactory;
+			this.mailboxFactory = mailboxFactory;
 			this.packetRouter = packetRouter;
 		}
 		this.logger = logger;
@@ -375,7 +387,7 @@ public class Server {
 		if( isListening() ) {
 			return;
 		}
-		Looper looper = new Looper( secure, port, packetListener, addressVerifier, sessionFactory, authenticator, packetProviderFactory, packetRouter, writeChannelProvider, logger );
+		Looper looper = new Looper( secure, port, packetListener, addressVerifier, sessionFactory, authenticator, mailboxFactory, packetRouter, writeChannelProvider, logger );
 		listenerThread = new Thread( looper, String.format( "%s(%s)", Looper.class.getName(), Integer.toHexString( hashCode() ) ) );
 		listenerThread.start();
 	}

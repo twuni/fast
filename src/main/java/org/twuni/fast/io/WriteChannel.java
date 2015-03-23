@@ -268,9 +268,8 @@ public class WriteChannel implements FAST {
 	 */
 	public WriteChannel send( Packet... packets ) {
 		try {
-			output.write( Command.SEND );
-			output.write( packets.length );
 			for( Packet packet : packets ) {
+				output.write( Command.SEND );
 				PacketSerializer.write( packet, output );
 				eventHandler.onPacketSent( packet );
 			}

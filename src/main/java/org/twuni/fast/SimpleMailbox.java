@@ -7,7 +7,7 @@ import org.twuni.fast.model.Packet;
 /**
  * Provides packets from the beginning of a wrapped list.
  */
-public class ListPacketProvider implements PacketProvider {
+public class SimpleMailbox implements Mailbox {
 
 	private final List<Packet> list;
 
@@ -17,7 +17,7 @@ public class ListPacketProvider implements PacketProvider {
 	 * @param list
 	 *            the list to be wrapped.
 	 */
-	public ListPacketProvider( List<Packet> list ) {
+	public SimpleMailbox( List<Packet> list ) {
 		this.list = list;
 	}
 

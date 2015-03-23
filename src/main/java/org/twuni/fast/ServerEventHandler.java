@@ -16,8 +16,9 @@ public class ServerEventHandler extends EventHandlers {
 	 * are accepted only for known addresses. The given {@code sessionFactory}
 	 * will be used when a new session needs to be created, and the given
 	 * {@code authenticator} will be consulted to map a credential to an
-	 * address owned by this credential. The given {@code packetProvider} will
-	 * be used as the source of packets whenever a FETCH command is received.
+	 * address owned by this credential. The given {@code mailboxFactory} will
+	 * be used to locate the source of packets whenever a FETCH command is
+	 * received.
 	 *
 	 * @param channel
 	 *            the channel to which commands will be written.
@@ -33,7 +34,7 @@ public class ServerEventHandler extends EventHandlers {
 	 *            the authenticator to use to verify the credential provided by
 	 *            a remote endpoint and match that credential with an owned
 	 *            address to which packets can be delivered.
-	 * @param packetProviderFactory
+	 * @param mailboxFactory
 	 *            the provider of packets to be sent when a FETCH command is
 	 *            received.
 	 * @param packetRouter
@@ -44,8 +45,8 @@ public class ServerEventHandler extends EventHandlers {
 	 * @param logger
 	 *            the stream to which logging should occur.
 	 */
-	public ServerEventHandler( WriteChannel channel, PacketListener packetListener, AddressVerifier addressVerifier, SessionFactory sessionFactory, Authenticator authenticator, PacketProviderFactory packetProviderFactory, PacketRouter packetRouter, WriteChannelProvider writeChannelProvider, PrintStream logger ) {
-		super( new ClojureEventLogger( logger ), new DetachOnException( channel ), new Reliability( channel ), new PacketListenerWrapper( packetListener ), new AttachableAddressFilter( addressVerifier ), new ServerSessionCreator( channel, sessionFactory ), new ServerAuthenticator( channel, authenticator ), new PacketDeliveryHandler( packetRouter ), new FlushPacketsOnFetch( channel, packetProviderFactory ), new WriteChannelManager( writeChannelProvider, channel ) );
+	public ServerEventHandler( WriteChannel channel, PacketListener packetListener, AddressVerifier addressVerifier, SessionFactory sessionFactory, Authenticator authenticator, MailboxFactory mailboxFactory, PacketRouter packetRouter, WriteChannelProvider writeChannelProvider, PrintStream logger ) {
+		super( new ClojureEventLogger( logger ), new DetachOnException( channel ), new Reliability( channel ), new PacketListenerWrapper( packetListener ), new AttachableAddressFilter( addressVerifier ), new ServerSessionCreator( channel, sessionFactory ), new ServerAuthenticator( channel, authenticator ), new PacketDeliveryHandler( packetRouter ), new FlushPacketsOnFetch( channel, mailboxFactory ), new WriteChannelManager( writeChannelProvider, channel ) );
 	}
 
 }

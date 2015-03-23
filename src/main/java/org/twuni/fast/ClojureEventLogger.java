@@ -12,6 +12,10 @@ import org.twuni.fast.model.Packet;
  */
 public class ClojureEventLogger extends EventLogger {
 
+	private static String toString( byte [] array ) {
+		return array != null ? Arrays.toString( array ).replaceAll( ",", "" ) : "null";
+	}
+
 	public ClojureEventLogger( OutputStream output ) {
 		super( output );
 	}
@@ -32,7 +36,7 @@ public class ClojureEventLogger extends EventLogger {
 
 	@Override
 	public void onAttachRequested( byte [] address ) {
-		log( "(attach %s)", Arrays.toString( address ).replaceAll( ",", "" ) );
+		log( "(attach %s)", toString( address ) );
 	}
 
 	@Override
@@ -42,7 +46,7 @@ public class ClojureEventLogger extends EventLogger {
 
 	@Override
 	public void onCredentialReceived( byte [] credential ) {
-		log( "(authenticate %s)", Arrays.toString( credential ).replaceAll( ",", "" ) );
+		log( "(authenticate %s)", toString( credential ) );
 	}
 
 	@Override
@@ -66,22 +70,22 @@ public class ClojureEventLogger extends EventLogger {
 
 	@Override
 	public void onIdentityReceived( byte [] identity ) {
-		log( "(identity %s)", Arrays.toString( identity ).replaceAll( ",", "" ) );
+		log( "(identity %s)", toString( identity ) );
 	}
 
 	@Override
 	public void onPacketReceived( Packet packet ) {
-		log( "(rx :timestamp %d :from %s to: %s :payload %d)", Long.valueOf( packet.getTimestamp() ), Arrays.toString( packet.getFrom() ).replaceAll( ",", "" ), Arrays.toString( packet.getTo() ).replaceAll( ",", "" ), Integer.valueOf( packet.getPayload().getLimit() ) );
+		log( "(rx :timestamp %d :from %s to: %s :payload %d)", Long.valueOf( packet.getTimestamp() ), toString( packet.getFrom() ), toString( packet.getTo() ), Integer.valueOf( packet.getPayload().getLimit() ) );
 	}
 
 	@Override
 	public void onPacketSent( Packet packet ) {
-		log( "(tx :timestamp %d from: %s :to %s :payload %d)", Long.valueOf( packet.getTimestamp() ), Arrays.toString( packet.getFrom() ).replaceAll( ",", "" ), Arrays.toString( packet.getTo() ).replaceAll( ",", "" ), Integer.valueOf( packet.getPayload().getLimit() ) );
+		log( "(tx :timestamp %d from: %s :to %s :payload %d)", Long.valueOf( packet.getTimestamp() ), toString( packet.getFrom() ), toString( packet.getTo() ), Integer.valueOf( packet.getPayload().getLimit() ) );
 	}
 
 	@Override
 	public void onSessionCreated( byte [] sessionID ) {
-		log( "(session :id %s)", Arrays.toString( sessionID ).replaceAll( ",", "" ) );
+		log( "(session :id %s)", toString( sessionID ) );
 	}
 
 }

@@ -5,7 +5,7 @@ import org.twuni.fast.model.Packet;
 /**
  * Provides a packet, if available.
  */
-public interface PacketProvider {
+public interface Mailbox {
 
 	/**
 	 * Returns a packet, if available.

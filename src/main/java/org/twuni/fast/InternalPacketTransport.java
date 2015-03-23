@@ -14,7 +14,7 @@ import org.twuni.fast.model.Packet;
 /**
  * Provides and delivers packets to local addresses.
  */
-public class InternalPacketTransport implements PacketProviderFactory, PacketRouter {
+public class InternalPacketTransport implements MailboxFactory, PacketRouter {
 
 	private static String toLocator( byte [] address ) {
 		return Integer.toHexString( Arrays.hashCode( address ) );
@@ -28,8 +28,8 @@ public class InternalPacketTransport implements PacketProviderFactory, PacketRou
 	}
 
 	@Override
-	public PacketProvider createPacketProvider( byte [] address ) {
-		return new ListPacketProvider( getPacketList( address ) );
+	public Mailbox createMailbox( byte [] address ) {
+		return new SimpleMailbox( getPacketList( address ) );
 	}
 
 	private List<Packet> getPacketList( byte [] address ) {
@@ -46,6 +46,11 @@ public class InternalPacketTransport implements PacketProviderFactory, PacketRou
 	public void routePacket( Packet packet ) {
 
 		byte [] address = packet.getTo();
+
+		if( Arrays.equals( packet.getFrom(), address ) ) {
+			// Treat an echo packet as if it has already been sent.
+			return;
+		}
 
 		Set<WriteChannel> channels = writeChannelProvider.provideWriteChannels( address );
 

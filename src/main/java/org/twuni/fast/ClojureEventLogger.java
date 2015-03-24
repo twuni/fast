@@ -75,12 +75,12 @@ public class ClojureEventLogger extends EventLogger {
 
 	@Override
 	public void onPacketReceived( Packet packet ) {
-		log( "(rx :timestamp %d :from %s to: %s :payload %d)", Long.valueOf( packet.getTimestamp() ), toString( packet.getFrom() ), toString( packet.getTo() ), Integer.valueOf( packet.getPayload().getLimit() ) );
+		log( "(rx :timestamp %d :from %s :to %s :payload %d)", Long.valueOf( packet.getTimestamp() ), toString( packet.getFrom() ), toString( packet.getTo() ), Integer.valueOf( packet.getPayload().getLimit() ) );
 	}
 
 	@Override
 	public void onPacketSent( Packet packet ) {
-		log( "(tx :timestamp %d from: %s :to %s :payload %d)", Long.valueOf( packet.getTimestamp() ), toString( packet.getFrom() ), toString( packet.getTo() ), Integer.valueOf( packet.getPayload().getLimit() ) );
+		log( "(tx :timestamp %d :from %s :to %s :payload %d)", Long.valueOf( packet.getTimestamp() ), toString( packet.getFrom() ), toString( packet.getTo() ), Integer.valueOf( packet.getPayload().getLimit() ) );
 	}
 
 	@Override

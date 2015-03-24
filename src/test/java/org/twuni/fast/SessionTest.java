@@ -23,7 +23,7 @@ public class SessionTest {
 	}
 
 	private static Client client( CharSequence username, CharSequence password ) throws UnknownHostException, IOException {
-		return new Client.Builder().secure( false ).host( "localhost" ).credential( username, password ).build();
+		return new Client.Builder().secure( false ).host( "localhost" ).port( 4857 ).credential( username, password ).build();
 	}
 
 	private static Client eve() throws UnknownHostException, IOException {
